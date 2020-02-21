@@ -752,14 +752,14 @@
   {% block content %}
     <article>
       <h2>{{ course.title }}</h2>
-      <p>{{ course.description }}</p>
+      {{ course.description|linebreaks }}
 
       <section>
         <!-- `step_set` is a query set that can be queried against
           for `all` Step records belonging to the Course -->
         {% for step in course.step_set.all %}
           <h3>{{ step.title }}</h3>
-          <p>{{ step.description }}</p>
+          {{ step.description|linebreaks }}
         {% endfor %}
       </section>
     </article>
@@ -794,8 +794,8 @@
   from . import views
 
   urlpatterns = [
-      path('', views.course_list),
       path('<int:pk>/', views.course_detail),
+      path('', views.course_list),
   ]
   ```
 
@@ -837,6 +837,8 @@
 - Use the following shortcut to yield 404 errors:
 
   ```python
+  # ./courses/views.py
+
   from django.shortcuts import get_object_or_404, render
 
   from .models import Course
@@ -849,3 +851,65 @@
   ```
 
   - **NOTE:** You can customize error views by following the instructions [here](https://docs.djangoproject.com/en/3.0/topics/http/views/#customizing-error-views).
+
+### Final Details
+
+#### url Tag
+
+- Example:
+
+  ```python
+  # ./learning_site/urls.py
+
+  # ...
+
+  urlpatterns = [
+      # Add `namespace` for easier configuration of URL tags.
+      path('courses/', include('courses.urls', namespace='courses')),
+      path('admin/', admin.site.urls),
+      path('', views.home, name='home'), # Assign a name for tagging.
+  ]
+  ```
+
+  ```html
+  # ./templates/layout.html
+
+  <!-- Snippet -->
+  <nav>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'courses:list' %}">Courses</a>
+  </nav>
+  ```
+
+  ```python
+  # ./courses/urls.py
+
+  # ...
+
+  # Must include an app name for namespacing to work.
+  app_name = 'courses'
+
+  urlpatterns = [
+      path('', views.course_list, name='list'),
+      path('<int:course_pk>/<int:step_pk>/', views.step_detail, name='step'),
+      path('<int:pk>/', views.course_detail, name='detail'),
+  ]
+  ```
+
+  ```html
+  # ./courses/templates/courses/course_list.html
+
+  <!-- Snippet -->
+  <div class="cards">
+    {% for course in courses %}
+    <div class="card">
+      <header>
+        <a href="{% url 'courses:detail' pk=course.pk %}">{{ course.title }}</a>
+      </header>
+      <div class="card-copy">
+        {{ course.description|linebreaks }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  ```

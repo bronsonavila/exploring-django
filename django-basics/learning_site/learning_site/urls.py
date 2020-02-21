@@ -19,7 +19,8 @@ from django.urls import include, path
 from . import views
 
 urlpatterns = [
-    path('courses/', include('courses.urls')),
+    # Add `namespace` for easier configuration of URL tags.
+    path('courses/', include('courses.urls', namespace='courses')),
     path('admin/', admin.site.urls),
-    path('', views.home),
+    path('', views.home, name='home'),
 ]

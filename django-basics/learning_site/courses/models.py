@@ -19,8 +19,11 @@ class Course(models.Model):
 class Step(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
+    # `blank` refers to the form in the admin menu (i.e., allowed to be empty).
+    content = models.TextField(blank=True, default='')
     order = models.IntegerField(default=0)
     # Establish a many-to-one relationship where many steps belong to one course.
+    # If the Course class appeared after Step, then "Course" must be in quotes.
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE, # Delete child tables.
