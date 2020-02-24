@@ -252,6 +252,204 @@
 
   ```
 
+## Python Testing
+
+### First Steps With Testing
+
+#### Writing and Running Doctests
+
+- **Doctests** are written in plain text in the **docstring** of a function or class. Examples:
+
+  ```python
+  # .python-testing/dungeon/dd_game.py
+
+  # Python will run a statement that starts with 3 chevrons.
+
+  def build_cells(width, height):
+      """Create and return a `width` x `height` grid of two tuples
+
+      >>> cells = build_cells(2, 2)
+      >>> len(cells)
+      4
+
+      """
+      cells = []
+      for y in range(height):
+          for x in range(width):
+              cells.append((x, y))
+      return cells
+
+
+    def get_locations(cells) :
+        """Randomly pick starting locations for the monster, the door,
+        and the player
+
+        >>> cells = build_cells(2, 2)
+        >>> m, d, p = get_locations(cells)
+        >>> m != d and d != p
+        True
+        >>> d in cells
+        True
+
+        """
+        monster = random.choice(cells)
+        door = random.choice(cells)
+        player = random.choice(cells)
+
+        if monster == door or monster == player or door == player:
+            monster, door, player = get_locations(cells)
+
+        return monster, door, player
+
+
+    def get_moves(player):
+        """Based on the tuple of the player's position, return the list
+        of acceptable moves
+
+        >>> GAME_DIMENSIONS = (2, 2)
+        >>> get_moves((0, 2))
+        ['RIGHT', 'UP', 'DOWN']
+
+        """
+        x, y = player
+        moves = ['LEFT', 'RIGHT', 'UP', 'DOWN']
+        if x == 0:
+            moves.remove('LEFT')
+        if x == GAME_DIMENSIONS[0] - 1:
+            moves.remove('RIGHT')
+        if y == 0:
+            moves.remove('UP')
+        if y == GAME_DIMENSIONS[1] - 1:
+            moves.remove('DOWN')
+        return moves
+  ```
+
+- To run the tests in the examples above, run:
+
+  ```
+  $ python -m doctest dd_game.py
+  ```
+
+  - **NOTE:** The `-m` flag tells Python to load the `doctest` module. The `doctest` module reviews the file for doctests and runs them. If no messages are printed to the console, then all of the tests passed successfully.
+
+#### Your First unittest Test Case
+
+- A **test case** is a class that contains multiple methods (some of which are tests, and others simply being methods that you need). There are two special methods--**Set Up** and **Tear Down**--that are run before and after each test.
+
+- Example:
+
+  ```python
+  # ./python-testing/rps/tests.py
+
+  import unittest
+
+
+  # Test case:
+  class MathTests(unittest.TestCase):
+      # Tests must always begin with the word `test`.
+      def test_five_plus_five(self):
+          assert 5 + 5 == 10
+
+      def test_one_plus_one(self):
+          assert not 1 + 1 == 3
+
+  # Allow tests to be run directly via `$ python tests.py`.
+  if __name__ == '__main__':
+      unittest.main()
+  ```
+
+  - **NOTE:** If do you not include the last 2 lines, you will have to run the tests via:
+
+    ```python
+    $ python -m unittest tests.py
+    ```
+
+### Be Assertive
+
+#### Quantitative Assertions
+
+- **Assertions** test a condition in your code that must be met. Examples:
+
+  ```python
+  # ./python-testing/rps/tests.py
+
+  import unittest
+
+  import moves
+
+
+  class MoveTests(unittest.TestCase):
+      # The `setUp` method predates PEP8, hence the camelCase.
+      # This method is called before each test.
+      def setUp(self):
+          self.rock = moves.Rock()
+          self.paper = moves.Paper()
+          self.scissors = moves.Scissors()
+
+      def test_equal(self):
+          self.assertEqual(self.rock, moves.Rock())
+
+      def test_not_equal(self):
+          self.assertNotEqual(self.rock, self.paper)
+
+      def test_rock_better_than_scissors(self):
+          self.assertGreater(self.rock, self.scissors)
+
+      def test_paper_worse_than_scissors(self):
+          self.assertLess(self.paper, self.scissors)
+
+  if __name__ == '__main__':
+      unittest.main()
+  ```
+
+#### Exceptions
+
+- Example of testing for exceptions:
+
+  ```python
+  def test_bad_description(self):
+      # This test will pass only if a `ValueError` exception is raised.
+      # `with` is a "context manager".
+      with self.assertRaises(ValueError):
+          dice.Roll('2b6')
+  ```
+
+### Covering Your Bases
+
+#### Using Coverage
+
+- Run `pip install coverage` to install Coverage.
+
+- To use Coverage, ensure the script to be scripted includes the `if __name__` block noted above, and run the following command:
+
+  ```
+  $ coverage run tests.py
+  ```
+
+- To view details regarding your percentage of code coverage and any lines which are missing coverage, run the following command:
+
+  ```
+  $ coverage report -m
+  ```
+
+  - **NOTE:** The `-m` flag stands for "missing".
+
+- Ideally, aim for code coverage of 90% or better.
+
+#### HTML Reports
+
+- Instead of generating a Coverage report in the terminal, you can run the following command to prepare an HTML report that can be viewed in your browser:
+
+  ```
+  $ coverage html
+  ```
+
+- After creating your `htmlcov/` directory, run a Python server to view the page in your browser:
+
+  ```
+  $ python -m http.server
+  ```
+
 ## Django Basics
 
 ### Say Hello to Django
@@ -314,7 +512,7 @@
 - Create a `views.py` file in your project's stub directory to manage views:
 
   ```python
-  # ./learning_site/views.py
+  # ./django-basics/learning_site/views.py
 
   from django.http import HttpResponse
 
@@ -458,7 +656,7 @@
 - You can include views from apps into the main project as follows:
 
   ```python
-  # ./courses/views.py
+  # ./django-basics/learning_site/courses/views.py
 
   from django.http import HttpResponse
 
@@ -474,7 +672,7 @@
   ```
 
   ```python
-  # ./courses/urls.py
+  # ./django-basics/learning_site/courses/urls.py
 
   from django.urls import path
 
@@ -486,7 +684,7 @@
   ```
 
   ```python
-  # ./learning_site/urls.py
+  # ./django-basics/learning_site/urls.py
 
   from django.contrib import admin
   from django.urls import include, path
@@ -564,7 +762,7 @@
 - After logging in, you will see two models created by Django: Groups and Users. These belong to Django's `auth` app. To add (or **register**) your own models, use the `admin.py` file within the model's app, e.g.:
 
   ```python
-  # ./courses/admin.py
+  # ./django-basics/learning_site/courses/admin.py
 
   from django.contrib import admin
 
@@ -583,10 +781,10 @@
 
   - **NOTE:** This course only covers the DTL, not Jinja2.
 
-- When inside of an **app** directory, Django looks for templates within a `/templates` directory by default. Django also expects that `/templates` directory to include another directory that shares the same name as the app (serving as a namespaced directory for all app-specific templates within). It is within this directory (e.g., `./courses/templates/courses/`) that your template files will appear, e.g.:
+- When inside of an **app** directory, Django looks for templates within a `/templates` directory by default. Django also expects that `/templates` directory to include another directory that shares the same name as the app (serving as a namespaced directory for all app-specific templates within). It is within this directory (e.g., `/.django-basics/learning_site/courses/templates/courses/`) that your template files will appear, e.g.:
 
   ```html
-  # ./courses/templates/courses/course_list.html
+  # ./django-basics/learning_site/courses/templates/courses/course_list.html
 
   {% for course in courses %}
     <h2>{{ course.title }}</h2>
@@ -595,7 +793,7 @@
   ```
 
   ```python
-  # ./courses/views.py
+  # ./django-basics/learning_site/courses/views.py
 
   from django.shortcuts import render
 
@@ -690,7 +888,7 @@
 - You may have a situation where one model has a relationship to another, and you want to be able to configure the model and its related counterpart in the same admin menu. For example, you may have a collection of "Courses", and each course has a number of instructional "Steps" to follow:
 
   ```python
-  # ./courses/models.py
+  # ./django-basics/learning_site/courses/models.py
 
   from django.db import models
 
@@ -743,7 +941,7 @@
 - Example:
 
   ```html
-  # ./courses/templates/courses/course_detail.html
+  # ./django-basics/learning_site/courses/templates/courses/course_detail.html
 
   {% extends "layout.html" %}
 
@@ -767,7 +965,7 @@
   ```
 
   ```python
-  # ./courses/views.py
+  # ./django-basics/learning_site/courses/views.py
 
   from django.shortcuts import render
 
@@ -787,7 +985,7 @@
   ```
 
   ```python
-  # ./courses/urls.py
+  # ./django-basics/learning_site/courses/urls.py
 
   from django.urls import path
 
@@ -806,7 +1004,7 @@
 - Modify the order of records as follows:
 
   ```python
-  # ./courses/models.py
+  # ./django-basics/learning_site/courses/models.py
 
   from django.db import models
 
@@ -837,7 +1035,7 @@
 - Use the following shortcut to yield 404 errors:
 
   ```python
-  # ./courses/views.py
+  # ./django-basics/learning_site/courses/views.py
 
   from django.shortcuts import get_object_or_404, render
 
@@ -859,7 +1057,7 @@
 - Example:
 
   ```python
-  # ./learning_site/urls.py
+  # ./django-basics/learning_site/urls.py
 
   # ...
 
@@ -882,7 +1080,7 @@
   ```
 
   ```python
-  # ./courses/urls.py
+  # ./django-basics/learning_site/courses/urls.py
 
   # ...
 
@@ -897,7 +1095,7 @@
   ```
 
   ```html
-  # ./courses/templates/courses/course_list.html
+  # ./django-basics/learning_site/courses/templates/courses/course_list.html
 
   <!-- Snippet -->
   <div class="cards">
@@ -912,4 +1110,80 @@
     </div>
     {% endfor %}
   </div>
+  ```
+
+### Test Time
+
+#### Model Tests
+
+- Testing models is usually the first step in thoroughly testing a Django app. All apps will include a `tests.py` file when they are created. Once you have written your tests, run them using the `test` command of your project's `manage.py` utility:
+
+  ```
+  $ python manage.py test
+  ```
+
+#### View Tests
+
+- Example:
+
+  ```python
+  # ./django-basics/learning_site/courses/tests.py
+
+  from django.urls import reverse
+  from django.test import TestCase
+
+  from .models import Course
+
+
+  class CourseViewsTests(TestCase):
+      def setUp(self):
+          self.course = Course.objects.create(
+              title="Python Testing",
+              description="Learn to write tests in Python"
+          )
+          self.course2 = Course.objects.create(
+              title="New Course",
+              description="A new course"
+          )
+
+      # Test course list view to ensure it shows both courses above.
+      def test_course_list_view(self):
+          # When testing views, you can use `self.client`, which allows you to
+          # make HTTP requests to a URL and fetch the status code and HTML that
+          # come from that URL.
+          resp = self.client.get(reverse('courses:list'))
+          self.assertEqual(resp.status_code, 200)
+          # `resp` (response) object has an attributed named `context` which is
+          # a dictionary of all values passed into the template upon render.
+          self.assertIn(self.course, resp.context['courses'])
+          self.assertIn(self.course2, resp.context['courses'])
+
+      def test_course_detail_view(self):
+          resp = self.client.get(
+              reverse('courses:detail', kwargs={'pk': self.course.pk}))
+          self.assertEqual(resp.status_code, 200)
+          self.assertEqual(self.course, resp.context['course'])
+
+      def test_step_detail_view(self):
+          resp = self.client.get(reverse('courses:step', kwargs={
+                                'course_pk': self.course.pk, 'step_pk': self.step.pk}))
+          self.assertEqual(resp.status_code, 200)
+          self.assertEqual(self.step, resp.context['step'])
+  ```
+
+#### Template Tests
+
+- Example:
+
+  ```python
+  # ./django-basics/learning_site/courses/tests.py
+
+  # ...
+
+  def test_course_list_view(self):
+      resp = self.client.get(reverse('courses:list'))
+      # Verify that the correct template is used.
+      self.assertTemplateUsed(resp, 'courses/course_list.html')
+      # Ensure that the course title appears somewhere on the page.
+      self.assertContains(resp, self.course.title)
   ```
