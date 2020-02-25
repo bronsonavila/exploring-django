@@ -5,9 +5,10 @@ from .models import Course, Step
 
 def course_list(request):
     courses = Course.objects.all()
+    email = 'questions@learning_site.com'
     # This `render()` has three arguments: (1) request, (2) template path, and
     # (3) context dictionary. The first two are always required.
-    return render(request, 'courses/course_list.html', {'courses': courses})
+    return render(request, 'courses/course_list.html', {'courses': courses, 'email': email})
 
 
 # Django automatically provides `request`, and we provide the

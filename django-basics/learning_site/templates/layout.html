@@ -1,17 +1,21 @@
 {% load static %}
+{% load course_extras %}
 
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    {% block static %}{% endblock %}
   </head>
   <body>
     <div class="site-container">
+      <div>{% nav_courses_list %}</div>
       <nav>
         <a href="{% url 'home' %}">Home</a>
         <a href="{% url 'courses:list' %}">Courses</a>
       </nav>
+      <p>Don't miss our latest course: {% newest_course %}</p>
       {% block content %}{% endblock %}
     </div>
   </body>

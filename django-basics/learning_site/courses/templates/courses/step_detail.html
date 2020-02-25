@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% load course_extras %}
 
 {% block title %}{{ step.title }} | {{ step.course.title }}{% endblock %}
 
@@ -9,6 +10,10 @@
     </h2>
     <h3>{{ step.title }}</h3>
     <!-- Wrap each paragraph in the description with separate `<p>` tags. -->
-    {{ step.content|linebreaks }}
+    {% with content=step.content %}
+      {{ content|linebreaks }}
+      Content: {{ content|wordcount }} words.
+      Estimated time to complete: {{ content|wordcount|time_estimate }} minute{{ content|wordcount|time_estimate|pluralize }}.
+    {% endwith %}
   </article>
 {% endblock %}

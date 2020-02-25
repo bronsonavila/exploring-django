@@ -184,8 +184,8 @@
 
 - **Installation**
 
-  - Run `pip3 install peewee` to install the [Peewee](https://peewee.readthedocs.io/en/latest/) ORM.
-  - To use PeeWee with a MySQL database, run `pip3 install pymysql` to install the required driver.
+  - Run `pip install peewee` to install the [Peewee](https://peewee.readthedocs.io/en/latest/) ORM.
+  - To use PeeWee with a MySQL database, run `pip install pymysql` to install the required driver.
 
 - **Example** (MySQL):
 
@@ -828,6 +828,7 @@
   ```html
   # ./templates/home.html
 
+  <!-- The given path should be relative to `templates/ -->
   {% extends "layout.html" %}
 
   {% block title %}Home{% endblock %}
@@ -963,6 +964,8 @@
     </article>
   {% endblock %}
   ```
+
+    - **NOTE:** If you only want to know the number of items in a query set, consider using `step_set.count` instead (as calling `.all` will perform a full database query, while `.count` just query the number of relevant items).
 
   ```python
   # ./django-basics/learning_site/courses/views.py
@@ -1186,4 +1189,214 @@
       self.assertTemplateUsed(resp, 'courses/course_list.html')
       # Ensure that the course title appears somewhere on the page.
       self.assertContains(resp, self.course.title)
+  ```
+
+## Customizing Django Templates
+
+### CSS in Django
+
+- To add app-specific (rather than site-wide) CSS and other static assets, you need to add a directory called `static/` within the app directory. You must then **namespace** your static files by creating another directory within your `static/` directory which has the same name as your app directory. For example, if your app is contained within the `./learning_site/courses/` directory, then the static files should be contained within: `./learning_site/courses/static/courses/css/courses.css`
+
+- To apply your app-specific styles, add a `static` block in the `<head>` of your base HTML layout, and then use the `static` block within your app-specific HTML template in which the styles should be applied, e.g.:
+
+  ```html
+  # ./learning_site/templates/layout.html
+
+  <head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    {% block static %}{% endblock %}
+  </head>
+  ```
+
+  ```html
+  # ./learning_site/courses/templates/courses/course_list.html
+
+  {% extends "layout.html" %}
+
+  <!-- Load app-specific static files -->
+  {% load static %}
+
+  {% block static %}
+    <link rel="stylesheet" href="{% static 'courses/css/courses.css' %}">
+  {% endblock %}
+
+  # ...
+  ```
+
+### Handy Dandy Filters
+
+- Example of how to use `pluralize` and `join` filters:
+
+  ```html
+  # Will say "There is 1 step in this course" or "There are 2 steps in this course", depending on the number of steps assigned to the given course. Each step will be separated by a comma and a space.
+
+  <p>
+    There {{ course.step_set.count|pluralize:'is,are' }} {{ course.step_set.count }} step{{ course.step_set.count|pluralize }} in this course: {{ course.step_set.all|join:', ' }}
+  </p>
+  ```
+
+### Using Template Libraries
+
+- Consider using the [Humanize `contrib` package](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/) for additional filters that are helpful for displaying data values in a more human-readable format. To use this package, add `django.contrib.humanize` to your `INSTALLED_APPS` in `settings.py`. Once installed, load the package into the template file, e.g.:
+
+  ```python
+  {% load humanize %}
+
+  # Displays 1-9 as numbers, and 10+ as words (e.g., "ten").
+  {{ course.step_set.count|apnumber }}
+  ```
+
+- If you know that you may chaining multiple filters on one particular variable, consider using the `with` statement to make the variable name shorter, e.g.:
+
+  ```python
+  {% with content=step.content %}
+    {{ content|linebreaks }} Content: {{ content|wordcount }} words
+  {% endwith %}
+  ```
+
+## Building Custom Tags
+
+### Built-in Tags and Filters
+
+- Examples of `wordcount`, `truncatewords`, `urlize`, and Django's custom [date filter](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/#date):
+
+  ```html
+  <!-- Add an ellipsis and "Read More" link for descriptions longer than 5 words. -->
+  <div class="card-copy">
+    {% with description=course.description %}
+      {% if description|wordcount <= 5 %}
+        {{ description|linebreaks }}
+      {% else %}
+        {{ description|linebreaks|truncatewords:5 }}
+        <a href="{% url 'courses:detail' pk=course.pk %}">Read More</a>
+      {% endif %}
+      <!-- Format date as: December 9, 2019 -->
+      <div>Created on: {{ course.created_at|date:'F j, Y' }}</div>
+    {% endwith %}
+  </div>
+
+  <!-- `urlize` automatically creates a `mailto` link if text is a valid email. -->
+  <div>Have questions? Contact us: {{ email|urlize }}</div>
+  ```
+
+### DIY Custom Tags
+
+- [Custom template tags](https://docs.djangoproject.com/en/3.0/howto/custom-template-tags/#simple-tags) must be located in an app's `templatetags/` directory.
+
+  - **IMPORTANT:** Be sure to place an empty `__init__.py` file in the directory; otherwise, the directory will not be recognized as a Python package.
+
+- Example:
+
+  ```python
+  # ./learning_site/courses/templatetags/course_extras.py
+
+  # The `template` module contains the function required to register
+  # templates. When you register a template tag, you are making the
+  # tag available to Django's template language for future use.
+  from django import template
+
+  from courses.models import Course
+
+
+  register = template.Library()
+
+  # Course notes: Simple tags don't include new templates, don't have
+  # an end tag, and don't assign values to context variables.
+  @register.simple_tag
+  def newest_course():
+      """Gets the most recent course that was added to the library."""
+      return Course.objects.latest('created_at')
+
+  # If you do not include the `@register` decorator, this line would
+  # be required to register the template tag:
+  # register.simple_tag(newest_course)
+  ```
+
+### Complex Template Tags
+
+- Use an `inclusion_tag` if your template tag needs to return data as another template, not just a string, e.g.:
+
+  ```python
+  # ./learning_site/courses/templatetags/course_extras.py
+
+  @register.inclusion_tag('courses/course_nav.html')
+  def nav_courses_list():
+      """Returns dictionary of courses to display as navigation pane."""
+      courses = Course.objects.all()
+      return {'courses': courses}
+  ```
+
+  ```html
+  # ./learning_site/courses/templates/courses/course_nav.html
+
+  {% for course in courses %}
+    <div>
+      <a href="{% url 'courses:detail' pk=course.pk %}">{{ course.title }}</a>
+    </div>
+  {% endfor %}
+  ```
+
+  ```html
+  # ./learning_site/templates/layout.html
+
+  <div>{% nav_courses_list %}</div>
+  ```
+
+## Building Custom Filters
+
+### Custom Time Estimate Filter
+
+- Custom filters are located in the same directory as custom template tags: `templatetags/`
+
+- Example:
+
+  ```python
+  # ./learning_site/courses/templatetags/course_extras.py
+
+  @register.filter
+  def time_estimate(word_count):
+      minutes = round(word_count/20)
+      return minutes
+  ```
+
+  ```html
+  # ./learning_site/courses/templates/courses/step_detail.html
+
+  <!-- Displays "Content: 26 words. Estimated time to complete: 1 minute." -->
+  {% with content=step.content %}
+    Content: {{ content|wordcount }} words.
+    Estimated time to complete: {{ content|wordcount|time_estimate }} minute{{ content|wordcount|time_estimate|pluralize }}.
+  {% endwith %}
+  ```
+
+### Custom Tags
+
+- You can use a Python library called [markdown2](https://github.com/trentm/python-markdown2) to transform Markdown text into HTML. Run `pip install markdown2` to install the library.
+
+- Example:
+
+  ```python
+  # ./learning_site/courses/templatetags/course_extras.py
+
+  # ...
+
+  from django.utils.safestring import mark_safe
+  import markdown2
+
+  # ...
+
+  @register.filter
+  def markdown_to_html(markdown_text):
+      """Converts Markdown text to HTML."""
+      html_body = markdown2.markdown(markdown_text)
+      return mark_safe(html_body)
+  ```
+
+  ```html
+  # ./learning_site/courses/templates/courses/course_detail.html
+
+  {% load course_extras %}
+
+  {{ course.description|markdown_to_html }}
   ```
