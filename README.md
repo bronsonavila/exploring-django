@@ -1643,3 +1643,66 @@
 
   - **NOTE:** Unlike cleaning a single field, the form `clean` method does not need to return a "clean" value if an error is not raised.
 
+### More on Models
+
+#### Abstract Inheritance
+
+- [Abstract inheritance](https://docs.djangoproject.com/en/3.0/topics/db/models/#abstract-base-classes) allows for models to inherit from other models which are not inserted in the database, e.g.:
+
+  ```python
+  class User(models.Model):
+      """Cannot be queried."""
+      name = models.CharField()
+
+      class Meta:
+          abstract = True
+
+  class Student(User):
+      """Will include a `name` field. Can be queried via `Student.objects.all()`."""
+
+  class Staff(User):
+      """Will include a `name` field. Can be queried via `Staff.objects.all()`."""
+  ```
+
+  - **NOTE:** If you turn an already existing model into an abstract model, you will need to make and apply a new migration (and will likely need to remove registration references to the modified model in `admin.py` in the process, as you will essentially be renaming the model that currently exists in the database).
+
+#### Multiple Choice and True/False Questions
+
+- The second type of model inheritance used by Django is [multi-table inheritance](https://docs.djangoproject.com/en/3.0/topics/db/models/#multi-table-inheritance), which occurs when each model in the heirarcy corresponds to its own database table and can be queried and created individually. (You will probably want to avoid using MTI most of the time.)
+
+- Example:
+
+  ```python
+  # ./django-basics/learning_site/courses/models.py
+
+  # ...
+
+  class Question(models.Model):
+      quiz = models.ForeignKey(
+          Quiz,
+          on_delete=models.CASCADE
+      )
+      order = models.IntegerField(default=0)
+      prompt = models.TextField()
+
+      class Meta:
+          ordering = ['order', ]
+
+      # Makes it easier to get to specific model instances, and can also
+      # be useful in the admin view (for creating a "View on Site" button).
+      def get_absolute_url(self):
+          return self.quiz.get_absolute_url()
+
+      def __str__(self):
+          return self.prompt
+
+
+  class MultipleChoiceQuestion(Question):
+      shuffle_answers = models.BooleanField(default=False)
+
+
+  class TrueFalseQuestion(Question):
+      pass
+  ```
+
+  - **NOTE:** With the above configuration, it would only be necessary to register the `MultipleChoiceQuestion` and `TrueFalseQuestion` models (not the `Question` model) in `admin.py`.

@@ -13,11 +13,9 @@
     </p>
 
     <section>
-      <!-- `step_set` is a query set that can be queried against
-        for `all` Step records belonging to the Course -->
-      {% for step in course.step_set.all %}
+      {% for step in steps %}
         <h3>
-          <a href="{% url 'courses:step' course_pk=step.course.pk step_pk=step.pk %}">{{ step.title }}</a>
+          <a href="{{ step.get_absolute_url }}">{{ step.title }}</a>
         </h3>
         {{ step.description|linebreaks }}
       {% endfor %}

@@ -9,6 +9,7 @@ urlpatterns = [
     # Place step_detail above course_detail to ensure that the course detail
     # is not rendered when attempting to access a step detail.
     path('', views.course_list, name='list'),
-    path('<int:course_pk>/<int:step_pk>/', views.step_detail, name='step'),
+    path('<int:course_pk>/t<int:step_pk>/', views.text_detail, name='text'),
+    path('<int:course_pk>/q<int:step_pk>/', views.quiz_detail, name='quiz'),
     path('<int:pk>/', views.course_detail, name='detail'),
 ]
