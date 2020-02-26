@@ -22,5 +22,6 @@ urlpatterns = [
     # Add `namespace` for easier configuration of URL tags.
     path('courses/', include('courses.urls', namespace='courses')),
     path('admin/', admin.site.urls),
+    path('suggest/', views.suggestion_view, name='suggestion'),
     path('', views.home, name='home'),
 ]

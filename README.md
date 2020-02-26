@@ -1200,7 +1200,7 @@
 - To apply your app-specific styles, add a `static` block in the `<head>` of your base HTML layout, and then use the `static` block within your app-specific HTML template in which the styles should be applied, e.g.:
 
   ```html
-  # ./learning_site/templates/layout.html
+  # ./django-basics/learning_site/templates/layout.html
 
   <head>
     <title>{% block title %}{% endblock %}</title>
@@ -1210,7 +1210,7 @@
   ```
 
   ```html
-  # ./learning_site/courses/templates/courses/course_list.html
+  # ./django-basics/learning_site/courses/templates/courses/course_list.html
 
   {% extends "layout.html" %}
 
@@ -1289,7 +1289,7 @@
 - Example:
 
   ```python
-  # ./learning_site/courses/templatetags/course_extras.py
+  # ./django-basics/learning_site/courses/templatetags/course_extras.py
 
   # The `template` module contains the function required to register
   # templates. When you register a template tag, you are making the
@@ -1318,7 +1318,7 @@
 - Use an `inclusion_tag` if your template tag needs to return data as another template, not just a string, e.g.:
 
   ```python
-  # ./learning_site/courses/templatetags/course_extras.py
+  # ./django-basics/learning_site/courses/templatetags/course_extras.py
 
   @register.inclusion_tag('courses/course_nav.html')
   def nav_courses_list():
@@ -1328,7 +1328,7 @@
   ```
 
   ```html
-  # ./learning_site/courses/templates/courses/course_nav.html
+  # ./django-basics/learning_site/courses/templates/courses/course_nav.html
 
   {% for course in courses %}
     <div>
@@ -1338,7 +1338,7 @@
   ```
 
   ```html
-  # ./learning_site/templates/layout.html
+  # ./django-basics/learning_site/templates/layout.html
 
   <div>{% nav_courses_list %}</div>
   ```
@@ -1352,7 +1352,7 @@
 - Example:
 
   ```python
-  # ./learning_site/courses/templatetags/course_extras.py
+  # ./django-basics/learning_site/courses/templatetags/course_extras.py
 
   @register.filter
   def time_estimate(word_count):
@@ -1361,7 +1361,7 @@
   ```
 
   ```html
-  # ./learning_site/courses/templates/courses/step_detail.html
+  # ./django-basics/learning_site/courses/templates/courses/step_detail.html
 
   <!-- Displays "Content: 26 words. Estimated time to complete: 1 minute." -->
   {% with content=step.content %}
@@ -1377,7 +1377,7 @@
 - Example:
 
   ```python
-  # ./learning_site/courses/templatetags/course_extras.py
+  # ./django-basics/learning_site/courses/templatetags/course_extras.py
 
   # ...
 
@@ -1394,9 +1394,252 @@
   ```
 
   ```html
-  # ./learning_site/courses/templates/courses/course_detail.html
+  # ./django-basics/learning_site/courses/templates/courses/course_detail.html
 
   {% load course_extras %}
 
   {{ course.description|markdown_to_html }}
   ```
+
+## Django Forms
+
+### Forms
+
+#### Creating a Form
+
+- If you want to make a [form](https://docs.djangoproject.com/en/3.0/topics/forms/) for your general site (e.g., a contact form), first create a file named `forms.py` in your project's stub directory (e.g., `./learning_site/learning_site/forms.py`). Each form should exist as a class within `forms.py`, e.g.:
+
+  ```python
+  # ./django-basics/learning_site/learning_site/forms.py
+
+  from django import forms
+
+
+  class SuggestionForm(forms.Form):
+      name = forms.CharField()
+      email = forms.EmailField()
+      # Specify the `TextArea` widget; otherwise, it will be an input field.
+      suggestion = forms.CharField(widget=forms.Textarea)
+  ```
+
+#### Showing a Form in a View
+
+- Example:
+
+  ```python
+  # ./django-basics/learning_site/learning_site/views.py
+
+  from . import forms
+
+  # ...
+
+  def suggestion_view(request):
+    form = forms.SuggestionForm()
+    return render(request, 'suggestion_form.html', {'form': form})
+  ```
+
+  ```python
+  # ./django-basics/learning_site/learning_site/urls.py
+
+  from . import views
+
+  # ...
+
+  urlpatterns = [
+    # ...
+    path('suggest/', views.suggestion_view, name='suggestion'),
+    # ...
+  ]
+  ```
+
+  ```html
+  # ./django-basics/learning_site/templates/suggestion_form.html
+
+  {% extends "layout.html" %}
+
+  {% block title %}Suggest an idea!{% endblock %}
+
+  {% block content %}
+    <form action="" method="POST">
+      <!-- Place each form element within a set of `<p>` tags. -->
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit">
+    </form>
+  {% endblock %}
+  ```
+
+  - **IMPORTANT:** The `csrf_token` is used to protect against [Cross Site Request Forgeries](https://docs.djangoproject.com/en/3.0/ref/csrf/).
+
+#### Handling a Form in a View
+
+- Example of how to process a submitted form (simulates the form being received as an email, but merely stores the email within a `suggestions/` directory instead):
+
+  ```python
+  # ./django-basics/learning_site/learning_site/settings.py
+
+  # ...
+
+  EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+  EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'suggestions')
+  ```
+
+  - **NOTE:** Refer to the [documentation](https://docs.djangoproject.com/en/3.0/topics/email/) for more information on sending a real email.
+
+  ```python
+  # ./django-basics/learning_site/learning_site/views.py
+
+  from django.contrib import messages
+  from django.core.mail import send_mail
+  from django.urls import reverse
+  from django.http import HttpResponseRedirect
+  from django.shortcuts import render
+
+  from . import forms
+
+  # ...
+
+  def suggestion_view(request):
+      form = forms.SuggestionForm()
+
+      if request.method == 'POST':
+          # Pass in the form data via the `request.POST` dictionary,
+          # and then validate the form's inputs in relation to the class.
+          # This is a "time-tested" approach to handling form validation.
+          form = forms.SuggestionForm(request.POST)
+          if form.is_valid():
+              # After being run through the `is_valid()` method, each field
+              # will be added to the `cleaned_data` object.
+              send_mail(
+                  'Suggestion from {}'.format(form.cleaned_data['name']),
+                  form.cleaned_data['suggestion'],
+                  '{name} <{email}>'.format(**form.cleaned_data),
+                  ['name@email.com']
+              )
+              # Display flash message on the screen after submission.
+              messages.add_message(request, messages.SUCCESS,
+                                  'Thanks for your suggestion!')
+              # Redirect to the same page (acts as a way to clear the form).
+              return HttpResponseRedirect(reverse('suggestion'))
+
+      return render(request, 'suggestion_form.html', {'form': form})
+  ```
+
+  ```html
+  # ./django-basics/learning_site/templates/suggestion_form.html
+
+  # ...
+
+  {% block content %}
+    {% if messages %}
+      <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <form action="" method="POST">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit">
+    </form>
+  {% endblock %}
+  ```
+
+#### Custom Field Validation
+
+- Example of a "honeypot" custom field validation:
+
+  ```python
+  # ./django-basics/learning_site/learning_site/forms.py
+
+  # ...
+
+  class SuggestionForm(forms.Form):
+    name = forms.CharField()
+    email = forms.EmailField()
+    suggestion = forms.CharField(widget=forms.Textarea)
+    honeypot = forms.CharField(required=False, widget=forms.HiddenInput)
+
+    # When Django runs the `is_valid()` method, it applies its own built-in
+    # validations to each field. Adding your own `clean_` method allows you
+    # to perform validations beyond the default cleaning behavior for a specific
+    # field (e.g., `clean_name` will handle validating the `name` field).
+    def clean_honeypot(self):
+        honeypot = self.cleaned_data['honeypot']
+        if len(honeypot):
+            raise forms.ValidationError('Bad bot!')
+        return honeypot
+  ```
+
+#### Using and Creating Validators
+
+- Rather than using a custom field validation, you may also be able to rely upon Django's [validators](https://docs.djangoproject.com/en/3.0/ref/validators/), e.g.:
+
+  ```python
+  # ./django-basics/learning_site/learning_site/forms.py
+
+  # ...
+
+  class SuggestionForm(forms.Form):
+      name = forms.CharField()
+      email = forms.EmailField()
+      suggestion = forms.CharField(widget=forms.Textarea)
+      honeypot = forms.CharField(
+          required=False,
+          widget=forms.HiddenInput,
+          # The value is only valid if it has a max length of 0.
+          validators=[validators.MaxLengthValidator(0)]
+      )
+  ```
+
+- Alternatively, you can create your own custom validators, e.g.:
+
+  ```python
+  # ./django-basics/learning_site/learning_site/forms.py
+
+  # ...
+
+  def must_be_empty(value):
+      if value:
+          raise forms.ValidationError('is not empty')
+
+
+  class SuggestionForm(forms.Form):
+      name = forms.CharField()
+      email = forms.EmailField()
+      # Specify the `TextArea` widget; otherwise, it will be an input field.
+      suggestion = forms.CharField(widget=forms.Textarea)
+      honeypot = forms.CharField(
+          required=False,
+          widget=forms.HiddenInput,
+          validators=[must_be_empty]
+    )
+  ```
+
+#### Cleaning a Whole Form
+
+- Example:
+
+  ```python
+  # ./django-basics/learning_site/learning_site/forms.py
+
+  # ...
+
+  # If a method is named `clean`, then it will clean the entire form.
+  # Django will first go through each field and make sure they satisfy
+  # their own requirements. Then Django will look a the form as a whole
+  # to make sure the form follows the `clean` method's requirements.
+  def clean(self):
+      # `super().clean()` preserves validation logic in parent classes.
+      # See: https://docs.djangoproject.com/en/3.0/ref/forms/validation/
+      cleaned_data = super().clean()
+      email = cleaned_data.get('email')
+      verify = cleaned_data.get('verify_email')
+
+      if email != verify:
+          raise forms.ValidationError('Email fields must match.')
+  ```
+
+  - **NOTE:** Unlike cleaning a single field, the form `clean` method does not need to return a "clean" value if an error is not raised.
+
