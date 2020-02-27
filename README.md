@@ -1301,7 +1301,7 @@
 
   register = template.Library()
 
-  # Course notes: Simple tags don't include new templates, don't have
+  # Teacher's Notes: Simple tags don't include new templates, don't have
   # an end tag, and don't assign values to context variables.
   @register.simple_tag
   def newest_course():
@@ -1705,4 +1705,125 @@
       pass
   ```
 
-  - **NOTE:** With the above configuration, it would only be necessary to register the `MultipleChoiceQuestion` and `TrueFalseQuestion` models (not the `Question` model) in `admin.py`.
+  - **NOTE:** With the above configuration, it would only be necessary to register the `MultipleChoiceQuestion` and `TrueFalseQuestion` models (not the `Question` model
+
+### Model Forms
+
+#### What are Model Forms?
+
+- When you create a model in an app, Django automatically creates a form for creating/editing instances of registered models via the admin view. However, if you want to create/edit models from outside of the admin view (e.g., to allow logged-in users to modify their own data), Django provides [model forms](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/).
+
+- To create a model form, go to your app directory and create a file named `forms.py`. Example:
+
+  ```python
+  # ./django-basics/learning_site/courses/forms.py
+
+  from django import forms
+
+  from . import models
+
+
+  class QuizForm(forms.ModelForm):
+      class Meta:
+          model = models.Quiz
+          # Specify the fields you want to include.
+          fields = [
+              'title',
+              'description',
+              'order',
+              'total_questions',
+          ]
+  ```
+
+- Teacher's Notes: One of the areas of model forms that frustrates people is the requirement to use either `fields` or `exclude`. Many people find `excludes` to be faster because you do not have to update it every time you change your form or your model. But that is a dangerous decision to make because now any new fields will be automatically added to your displayed form. Instead, use `fields` to be explicit and control your fields directly.
+
+#### Using a Model Form
+
+- Create a new view for your model form:
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  from django.contrib import messages
+  # Marks a view as requiring a logged-in user.
+  from django.contrib.auth.decorators import login_required
+  from django.http import HttpResponseRedirect
+  from django.shortcuts import get_object_or_404, render
+
+  from . import forms
+  from . import models
+
+  # ...
+
+  @login_required
+  def quiz_create(request, course_pk):
+      course = get_object_or_404(models.Course, pk=course_pk)
+      form = forms.QuizForm()
+
+      if request.method == 'POST':
+          form = forms.QuizForm(request.POST)
+          if form.is_valid():
+              # `commit=False` means "don't actually put this in the database,
+              # just make the model instance and hold it in memory."
+              # This allows you to modify the form data before saving.
+              quiz = form.save(commit=False)
+              # The form will not allow the user to modify the
+              # course associated with the quiz, but the course
+              # must be included as a field from the `Step` model
+              # (which is the `Quiz` parent model).
+              quiz.course = course
+              quiz.save()
+              messages.add_message(request, messages.SUCCESS, 'Quiz added!')
+              return HttpResponseRedirect(quiz.get_absolute_url())
+
+      return render(request, 'courses/quiz_form.html', {'form': form, 'course': course})
+  ```
+
+- Create a URL to access the model form view:
+
+  ```python
+  # ./django-basics/learning_site/courses/urls.py
+
+  # ...
+
+  urlpatterns = [
+      # ...
+      path('<int:course_pk>/create_quiz/', views.quiz_create, name='create_quiz'),
+      # ...
+  ]
+  ```
+
+- Create an HTML template for your model form:
+
+  ```html
+  # ./django-basics/learning_site/courses/templates/courses/quiz_form.html
+
+  {% extends "layout.html" %}
+
+  {% block title %}New Quiz | {{ course.title }}{% endblock %}
+
+  {% block content %}
+    <a href="{% url 'courses:detail' pk=course.pk %}">Back to {{ course.title }}</a>
+
+    <h1>Make a new quiz</h1>
+
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Save">
+    </form>
+  {% endblock %}
+  ```
+
+- Create a link elsewhere on the site to access your model form:
+
+  ```html
+  # ./django-basics/learning_site/courses/templates/courses/course_detail.html
+
+  # ...
+
+  <!-- Only allow logged-in users to view this link. -->
+  {% if user.is_authenticated %}
+    <a href="{% url 'courses:create_quiz' course_pk=course.id %}">New Quiz</a>
+  {% endif %}
+  ```

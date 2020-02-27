@@ -21,4 +21,10 @@
       {% endfor %}
     </section>
   </article>
+
+  <!-- Only allow logged-in users to view this link. -->
+  {% if user.is_authenticated %}
+    <hr>
+    <a href="{% url 'courses:create_quiz' course_pk=course.id %}">New Quiz</a>
+  {% endif %}
 {% endblock %}

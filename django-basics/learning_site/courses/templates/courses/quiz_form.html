@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}New Quiz | {{ course.title }}{% endblock %}
+
+{% block content %}
+  <a href="{% url 'courses:detail' pk=course.pk %}">Back to {{ course.title }}</a>
+
+  <h1>Make a new quiz</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Save">
+  </form>
+{% endblock %}
