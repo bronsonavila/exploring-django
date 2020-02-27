@@ -1827,3 +1827,67 @@
     <a href="{% url 'courses:create_quiz' course_pk=course.id %}">New Quiz</a>
   {% endif %}
   ```
+
+#### Edit an Instance
+
+- Create a view for editing a model form:
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  # ...
+
+  @login_required
+  def quiz_edit(request, course_pk, quiz_pk):
+      quiz = get_object_or_404(models.Quiz, pk=quiz_pk, course_id=course_pk)
+      form = forms.QuizForm(instance=quiz)
+
+      if request.method == 'POST':
+          form = forms.QuizForm(instance=quiz, data=request.POST)
+          if form.is_valid():
+              form.save()
+              messages.success(request, "Updated {}".format(
+                  form.cleaned_data['title']))
+              return HttpResponseRedirect(quiz.get_absolute_url())
+
+      return render(request, 'courses/quiz_form.html', {'form': form, 'course': quiz.course})
+  ```
+
+- Create a URL:
+
+  ```python
+  # ./django-basics/learning_site/courses/urls.py
+
+  urlpatterns = [
+      # ...
+      path('<int:course_pk>/edit_quiz/<int:quiz_pk>/', views.quiz_edit, name='edit_quiz'),
+      # ...
+  ]
+  ```
+
+- Modify your form template to accommodate edit functionality:
+
+  ```html
+  # ./django-basics/learning_site/courses/templates/courses/quiz_form.html
+
+  {% extends "layout.html" %}
+
+  <!-- If a form to edit already exists, then Django will pull in
+    the title of the form instance. Otherwise, if the form does
+    not exist, then Django will display "New Quiz" by default. -->
+  {% block title %}
+    {{ form.instance.title|default:"New Quiz" }} | {{ course.title }}
+  {% endblock %}
+
+  {% block content %}
+    <a href="{% url 'courses:detail' pk=course.pk %}">Back to {{ course.title }}</a>
+
+    <h1>{{ form.instance.title|default:"Make a new quiz" }}</h1>
+
+    <form method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Save">
+    </form>
+  {% endblock %}
+  ```

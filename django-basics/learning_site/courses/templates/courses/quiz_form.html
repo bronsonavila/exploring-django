@@ -1,11 +1,16 @@
 {% extends "layout.html" %}
 
-{% block title %}New Quiz | {{ course.title }}{% endblock %}
+<!-- If a form to edit already exists, then Django will pull in
+  the title of the form instance. Otherwise, if the form does
+  not exist, then Django will display "New Quiz" by default. -->
+{% block title %}
+  {{ form.instance.title|default:"New Quiz" }} | {{ course.title }}
+{% endblock %}
 
 {% block content %}
   <a href="{% url 'courses:detail' pk=course.pk %}">Back to {{ course.title }}</a>
 
-  <h1>Make a new quiz</h1>
+  <h1>{{ form.instance.title|default:"Make a new quiz" }}</h1>
 
   <form method="POST">
     {% csrf_token %}

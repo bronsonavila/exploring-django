@@ -4,16 +4,32 @@
 {% block title %}{{ step.title }} | {{ step.course.title }}{% endblock %}
 
 {% block content %}
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li class="callout {{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
   <article>
     <h2>
       <a href="{% url 'courses:detail' pk=step.course.pk %}">{{ step.course.title }}</a>
     </h2>
     <h3>{{ step.title }}</h3>
-    <!-- Wrap each paragraph in the description with separate `<p>` tags. -->
-    {% with content=step.content %}
-      {{ content|linebreaks }}
-      Content: {{ content|wordcount }} words.
-      Estimated time to complete: {{ content|wordcount|time_estimate }} minute{{ content|wordcount|time_estimate|pluralize }}.
-    {% endwith %}
+    <!-- Lazy way to distinguish between `text` and `quiz` steps. -->
+    {% if step.total_questions %}
+      <p>Quiz questions here.</p>
+      {% if user.is_authenticated %}
+        <a href="{% url 'courses:edit_quiz' course_pk=step.course.pk quiz_pk=step.pk %}">Edit</a>
+      {% endif %}
+    {% else %}
+      <!-- Wrap each paragraph in the description with separate `<p>` tags. -->
+        {% with content=step.content %}
+        {{ content|linebreaks }}
+        Content: {{ content|wordcount }} words.
+        Estimated time to complete: {{ content|wordcount|time_estimate }} minute{{ content|wordcount|time_estimate|pluralize }}.
+      {% endwith %}
+    {% endif %}
   </article>
 {% endblock %}
