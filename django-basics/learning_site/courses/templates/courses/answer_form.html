@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% load course_extras %}
+
+{% block title %}New Answer | {{ question.prompt }}  | {{ question.quiz.course.title }}{% endblock %}
+
+{% block content %}
+  <div>
+    <h1>Add answer</h1>
+    <h2>{{ question.prompt }}</h2>
+    <form action="" method="POST">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="Save">
+    </form>
+  </div>
+{% endblock %}
