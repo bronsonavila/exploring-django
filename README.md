@@ -1891,3 +1891,60 @@
     </form>
   {% endblock %}
   ```
+
+### Inlines and Media
+
+#### Formsets
+
+- [Formsets](https://docs.djangoproject.com/en/3.0/topics/forms/formsets/) allow you to create/edit multiple instances of a model at once. Example:
+
+  ```python
+  # ./django-basics/learning_site/courses/forms.py
+
+  # ...
+
+  AnswerFormSet = forms.modelformset_factory(
+      models.Answer,
+      form=AnswerForm,
+      extra=2, # Show 2 extra blank sets of form inputs (default=1)
+  )
+  ```
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  # ...
+
+  @login_required
+  def answer_form(request, question_pk):
+      question = get_object_or_404(models.Question, pk=question_pk)
+      formset = forms.AnswerFormSet(queryset=question.answer_set.all())
+
+      if request.method == 'POST':
+          formset = forms.AnswerFormSet(
+              request.POST, queryset=question.answer_set.all())
+          if formset.is_valid():
+              answers = formset.save(commit=False)
+              for answer in answers:
+                  answer.question = question
+                  answer.save()
+              messages.success(request, 'Added answers')
+              return HttpResponseRedirect(question.quiz.get_absolute_url())
+
+      return render(request, 'courses/answer_form.html', {
+          'formset': formset,
+          'question': question,
+      })
+  ```
+
+  ```html
+  # ./django-basics/learning_site/courses/templates/courses/answer_form.html
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    <section>
+      {{ formset }}
+    </section>
+    <input type="submit" value="Save">
+  </form>
+  ```

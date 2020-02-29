@@ -2,6 +2,10 @@ body {
   background-color: aliceblue;
 }
 
+form section * {
+  display: block;
+}
+
 .card {
   background-color: snow;
   border: 1px solid slategray;
