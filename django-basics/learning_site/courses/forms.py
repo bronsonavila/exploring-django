@@ -44,8 +44,18 @@ class AnswerForm(forms.ModelForm):
         ]
 
 
-AnswerFormSet = forms.modelformset_factory(
+AnswerFormset = forms.modelformset_factory(
     models.Answer,
     form=AnswerForm,
-    extra=2, # Show 2 extra blank sets of form inputs (default=1)
+    extra=2,  # Show 2 extra blank sets of form inputs (default=1)
+)
+
+
+AnswerInlineFormset = forms.inlineformset_factory(
+    models.Question,  # The model that will contain the inline form.
+    models.Answer,  # The model to be editted in the inline form.
+    extra=2,
+    fields=('order', 'text', 'correct'),
+    formset=AnswerFormset,  # Per lecturer: "Not required."
+    min_num=1,
 )

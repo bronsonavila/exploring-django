@@ -1903,7 +1903,7 @@
 
   # ...
 
-  AnswerFormSet = forms.modelformset_factory(
+  AnswerFormset = forms.modelformset_factory(
       models.Answer,
       form=AnswerForm,
       extra=2, # Show 2 extra blank sets of form inputs (default=1)
@@ -1918,10 +1918,10 @@
   @login_required
   def answer_form(request, question_pk):
       question = get_object_or_404(models.Question, pk=question_pk)
-      formset = forms.AnswerFormSet(queryset=question.answer_set.all())
+      formset = forms.AnswerFormset(queryset=question.answer_set.all())
 
       if request.method == 'POST':
-          formset = forms.AnswerFormSet(
+          formset = forms.AnswerFormset(
               request.POST, queryset=question.answer_set.all())
           if formset.is_valid():
               answers = formset.save(commit=False)
@@ -1945,6 +1945,152 @@
     <section>
       {{ formset }}
     </section>
+    <input type="submit" value="Save">
+  </form>
+  ```
+
+#### Inline Model Formset
+
+- [Inline formsets](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/#inline-formsets) appear in the model form of another model.
+
+- Example (allows a user to modify a question's answers directly from the "Question" form, rather than needing to access a separate "Answers" form):
+
+  ```python
+  # ./django-basics/learning_site/courses/forms.py
+
+  # ...
+
+  AnswerInlineFormset = forms.inlineformset_factory(
+      models.Question,  # The model that will contain the inline form.
+      models.Answer,  # The model to be editted in the inline form.
+      extra=2,
+      fields=('order', 'text', 'correct'),
+      formset=AnswerFormset,  # Per lecturer: "Not required."
+      min_num=1,
+  )
+  ```
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  # ...
+
+  @login_required
+  def create_question(request, quiz_pk, question_type):
+      quiz = get_object_or_404(models.Quiz, pk=quiz_pk)
+          form_class = forms.TrueFalseQuestionForm
+      else:
+          form_class = forms.MultipleChoiceQuestionForm
+
+      form = form_class()
+      answer_forms = forms.AnswerInlineFormset(
+          # The question has no answers since it's just being created,
+          # so you must pull in a blank queryset.
+          queryset=models.Answer.objects.none()
+      )
+
+      if request.method == 'POST':
+          form = form_class(request.POST)
+          answer_forms = forms.AnswerInlineFormset(
+              request.POST,
+              queryset=models.Answer.objects.none(),
+          )
+
+          if form.is_valid() and answer_forms.is_valid():
+              question = form.save(commit=False)
+              question.quiz = quiz
+              question.save()
+              answers = answer_forms.save(commit=False)
+              for answer in answers:
+                  answer.question = question
+                  answer.save()
+              messages.success(request, 'Added question')
+              return HttpResponseRedirect(quiz.get_absolute_url())
+
+      return render(request, 'courses/question_form.html', {
+          'quiz': quiz,
+          'form': form,
+          'formset': answer_forms,
+      })
+
+
+  @login_required
+  def edit_question(request, quiz_pk, question_pk):
+      question = get_object_or_404(
+          models.Question, pk=question_pk, quiz_id=quiz_pk)
+
+      if hasattr(question, 'truefalsequestion'):
+          form_class = forms.TrueFalseQuestionForm
+          question = question.truefalsequestion
+      else:
+          form_class = forms.MultipleChoiceQuestionForm
+          question = question.multiplechoicequestion
+
+      form = form_class(instance=question)
+      answer_forms = forms.AnswerInlineFormset(
+          queryset=form.instance.answer_set.all()
+      )
+
+      if request.method == 'POST':
+          form = form_class(request.POST, instance=question)
+          answer_forms = forms.AnswerInlineFormset(
+              request.POST,
+              queryset=form.instance.answer_set.all()
+          )
+
+          if form.is_valid() and answer_forms.is_valid():
+              form.save()
+              answers = answer_forms.save(commit=False)
+              for answer in answers:
+                  answer.question = question
+                  answer.save()
+              messages.success(request, 'Updated question')
+              return HttpResponseRedirect(question.quiz.get_absolute_url())
+
+      return render(request, 'courses/question_form.html', {
+          'quiz': question.quiz,
+          'form': form,
+          'formset': answer_forms,
+      })
+  ```
+
+  ```html
+  # ./django-basics/learning_site/courses/templates/courses/question_form.html
+
+  # ...
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <!-- `formset.management_form` is a special set of fields that controls how many items are represented, how many forms there are, etc. Must be included when parsing `formset` internals. -->
+    {{ formset.management_form }}
+
+    <table>
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Text</th>
+          <th>Correct?</th>
+          <th>Delete?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for form in formset %}
+          <tr class="{% if form.instance.pk %}item{% else %}new{% endif %}">
+            <td>{{ form.id }}{{ form.order }}</td>
+            <td>{{ form.text }}</td>
+            <td>{{ form.correct }}</td>
+            {% if form.instance.pk %}
+              <td>{{ form.DELETE }}</td>
+            {% else %}
+              <td></td>
+            {% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
     <input type="submit" value="Save">
   </form>
   ```

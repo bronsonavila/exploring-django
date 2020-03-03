@@ -9,12 +9,42 @@
     <form action="" method="POST">
       {% csrf_token %}
       {{ form.as_p }}
+
+      <!-- `formset.management_form` is a special set of fields that controls how many items are represented, how many forms there are, etc. Must be included when parsing `formset` internals. -->
+      {{ formset.management_form }}
+
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Text</th>
+            <th>Correct?</th>
+            <th>Delete?</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for form in formset %}
+            <tr class="{% if form.instance.pk %}item{% else %}new{% endif %}">
+              <td>{{ form.id }}{{ form.order }}</td>
+              <td>{{ form.text }}</td>
+              <td>{{ form.correct }}</td>
+              {% if form.instance.pk %}
+                <td>{{ form.DELETE }}</td>
+              {% else %}
+                <td></td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
       <input type="submit" value="Save">
     </form>
     <!-- Second conditional ensures you only add answers for a question that exists. -->
     {% if user.is_authenticated and form.instance.pk %}
-      <hr>
-      <a href="{% url 'courses:create_answer' question_pk=form.instance.pk %}">Answers</a>
+      <!-- No longer needed due to inline formset above. -->
+      <!-- <hr>
+      <a href="{% url 'courses:create_answer' question_pk=form.instance.pk %}">Answers</a> -->
     {% endif %}
   </div>
 {% endblock %}
