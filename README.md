@@ -2044,6 +2044,10 @@
               for answer in answers:
                   answer.question = question
                   answer.save()
+              # If you use `commit=False`, objects will not be deleted
+              # automatically. You must call `delete()` on each object.
+              for answer in answer_forms.deleted_objects:
+                  answer.delete()
               messages.success(request, 'Updated question')
               return HttpResponseRedirect(question.quiz.get_absolute_url())
 
@@ -2075,9 +2079,11 @@
           <th>Delete?</th>
         </tr>
       </thead>
-      <tbody>
+      <!-- Class required for ordering script (see 'Custom Form Media'). -->
+      <tbody class="order">
         {% for form in formset %}
-          <tr class="{% if form.instance.pk %}item{% else %}new{% endif %}">
+          <!-- Class required for dynamic jQuery formset (see 'Custom Form Media'). -->
+            <tr class="answer-form {% if form.instance.pk %}item{% else %}new{% endif %}">
             <td>{{ form.id }}{{ form.order }}</td>
             <td>{{ form.text }}</td>
             <td>{{ form.correct }}</td>
@@ -2094,3 +2100,53 @@
     <input type="submit" value="Save">
   </form>
   ```
+
+#### Custom Form Media
+
+- You may sometimes need to use special static files (e.g., CSS, JS, or images) to make forms work as desired. Example of how to make an inline formset orderable via drag-and-drop:
+
+  ```python
+  # ./django-basics/learning_site/courses/forms.py
+
+  # ...
+
+  class QuestionForm(forms.ModelForm):
+      class Media:
+          css = {'all': ('courses/css/order.css',)}
+          js = (
+              'courses/js/vendor/jquery.fn.sortable.min.js',
+              'courses/js/order.js',
+          )
+
+
+  class TrueFalseQuestionForm(QuestionForm):
+      # ...
+
+
+  class MultipleChoiceQuestionForm(QuestionForm):
+      # ...
+  ```
+
+  ```html
+  # ./django-basics/learning_site/courses/templates/courses/question_form.html
+
+  # ...
+
+  {% block css %}
+    {{ form.media.css }}
+  {% endblock %}
+
+  {% block javascript %}
+    {% load static %}
+    {{ form.media.js }}
+    <script src="{% static 'js/vendor/jquery.formset.js' %}"></script>
+    <script>
+      $('.answer-form').formset({
+        addText: 'Add Answer',
+        deleteText: 'Remove'
+      });
+    </script>
+  {% endblock %}
+  ```
+
+  - **NOTE:** This example relies upon the jQuery library being imported as a dependency in the main `layout.html` file.

@@ -6,7 +6,7 @@
   <head>
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
-    {% block static %}{% endblock %}
+    {% block css %}{% endblock %}
   </head>
   <body>
     <div class="site-container">
@@ -18,5 +18,7 @@
       <p>Don't miss our latest course: {% newest_course %}</p>
       {% block content %}{% endblock %}
     </div>
+    <script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>
+    {% block javascript %}{% endblock %}
   </body>
 </html>
