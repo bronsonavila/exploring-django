@@ -1,6 +1,8 @@
 from django.urls import reverse
 from django.db import models
 
+# Django's built-in "User" model can be used when authentication is required.
+from django.contrib.auth.models import User
 
 # The Course class inherits from `models.Model`.
 class Course(models.Model):
@@ -9,6 +11,11 @@ class Course(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
+    teacher = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+    )
+    subject = models.CharField(default='', max_length=100)
 
     # "Dunder string" defines how an instance is turned into a string. This is
     # used when Django prints a reference to an instance (e.g., in the shell).

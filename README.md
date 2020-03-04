@@ -2101,6 +2101,11 @@
   </form>
   ```
 
+- Course Notes:
+  - Recommended [tutorial](https://whoisnicoleharris.com/2015/01/06/implementing-django-formsets.html) by Nicole Harris.
+
+  - Consider using a [form wizard](https://django-formtools.readthedocs.io/en/latest/wizard.html#) for more advanced forms.
+
 #### Custom Form Media
 
 - You may sometimes need to use special static files (e.g., CSS, JS, or images) to make forms work as desired. Example of how to make an inline formset orderable via drag-and-drop:
@@ -2150,3 +2155,25 @@
   ```
 
   - **NOTE:** This example relies upon the jQuery library being imported as a dependency in the main `layout.html` file.
+
+## Django ORM
+
+### Sale Old ORM
+
+#### Let's Review
+
+- Working with a `Course` model:
+
+  - Get all courses: `Course.objects.all()`
+  - Get none of the courses: `Course.objects.none()`
+  - Get a single couse: `Course.objects.get(**kwargs)`
+  - Make a new course: `Course.objects.create(**kwargs)`
+  - Save changes to a course: `Course.objects.save(**kwargs)`
+
+#### Model Upgrades
+
+- You can use [fixtures](https://docs.djangoproject.com/en/3.0/howto/initial-data/) to provide initial data for models. You can create fixture data with `python manage.py dumpdata` and then optionally provide an app or model name. You can load that data with `python manage.py loaddata` and then provide the name of the fixture file, e.g.:
+
+  ```
+  $ python manage.py loaddata fixtures.json
+  ```
