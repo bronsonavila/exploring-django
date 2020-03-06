@@ -183,3 +183,23 @@ def answer_form(request, question_pk):
         'formset': formset,
         'question': question,
     })
+
+
+def courses_by_teacher(request, teacher):
+    # teacher = models.User.objects.get(username=teacher)
+    # courses = teacher.course_set.all()
+
+    # Simpler way to query courses by teacher, rather than using the
+    # commented out code above. This method is also preferred because
+    # it will just produce an empty queryset rather than a 404 error
+    # if the given teacher name does not exist in the database.
+    courses = models.Course.objects.filter(teacher__username=teacher)
+
+    return render(request, 'courses/course_list.html', {'courses': courses})
+
+
+def search(request):
+    term = request.GET.get('q')
+    # Get courses where the title contains the term (case insensitive).
+    courses = models.Course.objects.filter(title__icontains=term)
+    return render(request, 'courses/course_list.html', {'courses': courses})

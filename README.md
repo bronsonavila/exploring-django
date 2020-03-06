@@ -2177,3 +2177,107 @@
   ```
   $ python manage.py loaddata fixtures.json
   ```
+
+#### Django Debug Toolbar
+
+- Install the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/1.4/index.html) (DjDT) by running the following command:
+
+  ```
+  $ pip install django-debug-toolbar
+  ```
+
+- DjDT requires that the environment's `DEBUG` variable be set to `True`, and that the environment be running as `localhost`. To activate DjDT in your application:
+  1. Go to your app's `settings.py` file.
+  2. Add `'debug_toolbar'` to the `INSTALLED_APPS` variable anywhere after `django.contrib.staticfiles` (as DjDT relies upon some static files).
+  3. Add `'debug_toolbar.middleware.DebugToolbarMiddleware'` to the `MIDDLEWARE` variable.
+
+      - **NOTE:** You should include the Debug Toolbar middleware as early as possible in the list. However, it must come after any other middleware that encodes the response’s content, such as `GZipMiddleware`.
+
+  4. Set the `INTERNAL_IPS` variable to `['127.0.0.1', '::1', '0.0.0.0']`.
+  5. Set the `DEBUG_TOOLBAR_PATCH_SETTINGS` variable to `False`.
+  6. Go to your app's `urls.py` file and add the following:
+
+      ```python
+      from django.urls import include, path, re_path
+      from django.conf import settings
+
+      # ...
+
+      if settings.DEBUG:
+          import debug_toolbar
+          urlpatterns += [
+              re_path(r'^__debug__/', include(debug_toolbar.urls)),
+          ]
+      ```
+
+### Basic ORM Usage
+
+#### Restricting Results
+
+- You can refine a queryset by adding [`filter()` conditions](https://docs.djangoproject.com/en/3.0/topics/db/queries/#retrieving-specific-objects-with-filters).
+
+- Example of filtering database results:
+
+  ```python
+  # ./django-basics/learning_site/courses/urls.py
+
+  # ...
+
+  urlpatterns = [
+    # ...
+    path('by/<slug:teacher>/', views.courses_by_teacher, name='by_teacher'),
+    path('search/', views.search, name='search'),
+    # ...
+  ]
+  ```
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  # ...
+
+  def courses_by_teacher(request, teacher):
+      # teacher = models.User.objects.get(username=teacher)
+      # courses = teacher.course_set.all()
+
+      # Simpler way to query courses by teacher, rather than using the
+      # commented out code above. This method is also preferred because
+      # it will just produce an empty queryset rather than a 404 error
+      # if the given teacher name does not exist in the database.
+      courses = models.Course.objects.filter(teacher__username=teacher)
+
+      return render(request, 'courses/course_list.html', {'courses': courses})
+
+
+  def search(request):
+      term = request.GET.get('q')
+      # Get courses where the title contains the term (case insensitive).
+      courses = models.Course.objects.filter(title__icontains=term)
+      return render(request, 'courses/course_list.html', {'courses': courses})
+  ```
+
+  ```html
+  # ./django-basics/learning_site/templates/layout.html
+
+  # ...
+
+  <form action="{% url 'courses:search' %}" method="GET">
+    <ul>
+      <li><input type="search" name="q"></li>
+      <li><button type="button">Search</button></li>
+    </ul>
+  </form>
+  ```
+
+#### Exclusivity
+
+- You can use the `exclude()` method as an inverse corollary of the `filter()` method. Example:
+
+  ```
+  (InteractiveConsole)
+
+  >>> from courses.models import Course
+  >>> Course.objects.exclude(subject__in=['Python', 'Java'])
+
+  <QuerySet [<Course: Collections>, <Course: OOP>, <Course: Testing>, <Course: Build a Simple Android App>, <Course: Android Activity Lifecycle>, <Course: SQL Basics>, <Course: Modifying Data with SQL>, <Course: jQuery Basics>, <Course: Build a Simple Dynamic Site with Node.js>, <Course: Build a Basic PHP Website>]>
+  ```

@@ -15,6 +15,12 @@
         <a href="{% url 'home' %}">Home</a>
         <a href="{% url 'courses:list' %}">Courses</a>
       </nav>
+      <form action="{% url 'courses:search' %}" method="GET">
+        <ul>
+          <li><input type="search" name="q"></li>
+          <li><button type="button">Search</button></li>
+        </ul>
+      </form>
       <p>Don't miss our latest course: {% newest_course %}</p>
       {% block content %}{% endblock %}
     </div>
