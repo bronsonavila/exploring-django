@@ -2277,7 +2277,79 @@
   (InteractiveConsole)
 
   >>> from courses.models import Course
+
   >>> Course.objects.exclude(subject__in=['Python', 'Java'])
 
   <QuerySet [<Course: Collections>, <Course: OOP>, <Course: Testing>, <Course: Build a Simple Android App>, <Course: Android Activity Lifecycle>, <Course: SQL Basics>, <Course: Modifying Data with SQL>, <Course: jQuery Basics>, <Course: Build a Simple Dynamic Site with Node.js>, <Course: Build a Basic PHP Website>]>
+  ```
+
+#### Updates and Deletes
+
+- Example of how to update a field in all records at once in the Python shell:
+
+  ```
+  (InteractiveConsole)
+
+  >>> from courses.models import Course
+
+  >>> Course.objects.update(published=True)
+
+  15
+  ```
+
+- The `update()` and `delete()` methods target all records for a given model. If you want to avoid updating all records, you can include a `filter()` or `exclude()` statement, e.g.:
+
+  ```
+  >>> sql_courses = Course.objects.filter(subject__icontains='sql')
+
+  >>> sql_courses
+
+  <QuerySet [<Course: SQL Basics>, <Course: Modifying Data with SQL>]>
+
+  >>> sql_courses.delete()
+
+  (15, {'courses.Text': 0, 'courses.Answer': 7, 'courses.MultipleChoiceQuestion': 2, 'courses.Question': 2, 'courses.Quiz': 2, 'courses.Course': 2})
+
+  >>> sql_courses
+
+  <QuerySet []>
+  ```
+
+#### The Miracle of Creation
+
+- Examples of how to create model instances outside of a model form using `create()` and `bulk_create()`:
+
+  ```
+  >>> from django.contrib.auth.models import User
+
+  >>> teacher = User.objects.get(username='bavila')
+
+  >>> course = Course.objects.create(teacher=teacher, subject='Python', title='Django Basics')
+
+  >>> course.id
+
+  22
+
+  >>> Course.objects.bulk_create([
+  ...     Course(teacher=teacher, title='Django Forms', subject='Python'),
+  ...     Course(teacher=teacher, title='Django ORM', subject='Python')
+  ... ])
+
+  [<Course: Django Forms>, <Course: Django ORM>]
+
+  >>> Course.objects.filter(title__icontains='django')
+
+  <QuerySet [<Course: Customizing Django Templates>, <Course: Django Basics>, <Course: Django Forms>, <Course: Django ORM>]>
+  ```
+
+- Similar to the `get_object_or_404()` method, Django offers the `get_or_create()` method that checks to see if a record exists using all of the attributes passed to it. If the record does exist, it will be returned. If not, the record will be created and returned. The method also returns a boolean value indicating whether or not a new record was created, e.g.:
+
+  ```
+  >>> Course.objects.get_or_create(teacher=teacher, title='Django Forms', subject='Python')
+
+  (<Course: Django Forms>, False)
+
+  >>> Course.objects.get_or_create(teacher=teacher, title='Django REST Framework', subject='Python')
+
+  (<Course: Django REST Framework>, True)
   ```

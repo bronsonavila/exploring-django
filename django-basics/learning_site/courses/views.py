@@ -11,7 +11,7 @@ from . import models
 
 
 def course_list(request):
-    courses = models.Course.objects.all()
+    courses = models.Course.objects.filter(published=True)
     email = 'questions@learning_site.com'
     # This `render()` has three arguments: (1) request, (2) template path, and
     # (3) context dictionary. The first two are always required.
@@ -22,7 +22,7 @@ def course_list(request):
 # primary key (the ID, by default) through the URL.
 def course_detail(request, pk):
     # Show 404 if the Course object is not found.
-    course = get_object_or_404(models.Course, pk=pk)
+    course = get_object_or_404(models.Course, pk=pk, published=True)
     # Get all text and quiz steps, combine them, and sort by `order` attribute.
     # `text_set` is a query set that can be queried against for all `text` records
     # belonging to a course.
@@ -32,18 +32,25 @@ def course_detail(request, pk):
 
 
 def text_detail(request, course_pk, step_pk):
-    step = get_object_or_404(models.Text, course_id=course_pk, pk=step_pk)
+    step = get_object_or_404(models.Text,
+                             course_id=course_pk,
+                             pk=step_pk,
+                             course__published=True)
     return render(request, 'courses/step_detail.html', {'step': step})
 
 
 def quiz_detail(request, course_pk, step_pk):
-    step = get_object_or_404(models.Quiz, course_id=course_pk, pk=step_pk)
+    step = get_object_or_404(models.Quiz,
+                             course_id=course_pk,
+                             pk=step_pk,
+                             course__published=True)
     return render(request, 'courses/step_detail.html', {'step': step})
 
 
 @login_required
 def quiz_create(request, course_pk):
-    course = get_object_or_404(models.Course, pk=course_pk)
+    course = get_object_or_404(
+        models.Course, pk=course_pk, course__published=True)
     form = forms.QuizForm()
 
     if request.method == 'POST':
@@ -63,7 +70,10 @@ def quiz_create(request, course_pk):
 
 @login_required
 def quiz_edit(request, course_pk, quiz_pk):
-    quiz = get_object_or_404(models.Quiz, pk=quiz_pk, course_id=course_pk)
+    quiz = get_object_or_404(models.Quiz,
+                             pk=quiz_pk,
+                             course_id=course_pk,
+                             course__published=True)
     form = forms.QuizForm(instance=quiz)
 
     if request.method == 'POST':
@@ -193,7 +203,8 @@ def courses_by_teacher(request, teacher):
     # commented out code above. This method is also preferred because
     # it will just produce an empty queryset rather than a 404 error
     # if the given teacher name does not exist in the database.
-    courses = models.Course.objects.filter(teacher__username=teacher)
+    courses = models.Course.objects.filter(
+        teacher__username=teacher, published=True)
 
     return render(request, 'courses/course_list.html', {'courses': courses})
 
@@ -201,5 +212,6 @@ def courses_by_teacher(request, teacher):
 def search(request):
     term = request.GET.get('q')
     # Get courses where the title contains the term (case insensitive).
-    courses = models.Course.objects.filter(title__icontains=term)
+    courses = models.Course.objects.filter(
+        title__icontains=term, published=True)
     return render(request, 'courses/course_list.html', {'courses': courses})

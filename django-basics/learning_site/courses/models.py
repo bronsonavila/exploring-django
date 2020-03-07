@@ -16,6 +16,7 @@ class Course(models.Model):
         on_delete=models.CASCADE,
     )
     subject = models.CharField(default='', max_length=100)
+    published = models.BooleanField(default=False)
 
     # "Dunder string" defines how an instance is turned into a string. This is
     # used when Django prints a reference to an instance (e.g., in the shell).

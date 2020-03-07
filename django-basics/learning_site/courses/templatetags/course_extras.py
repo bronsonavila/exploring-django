@@ -16,7 +16,7 @@ register = template.Library()
 @register.simple_tag
 def newest_course():
     """Gets the most recent course that was added to the library."""
-    return Course.objects.latest('created_at')
+    return Course.objects.filter(published=True).latest('created_at')
 
 # If you do not include the `@register` decorator, this line would
 # be required to register the template tag:
@@ -25,7 +25,7 @@ def newest_course():
 @register.inclusion_tag('courses/course_nav.html')
 def nav_courses_list():
     """Returns dictionary of courses to display as navigation pane."""
-    courses = Course.objects.all()
+    courses = Course.objects.filter(published=True)
     return {'courses': courses}
 
 @register.filter
