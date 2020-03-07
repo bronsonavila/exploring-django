@@ -2387,3 +2387,102 @@
 
   <QuerySet [datetime.datetime(2016, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>), datetime.datetime(2019, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>), datetime.datetime(2020, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>)]>
   ```
+
+### Total Control
+
+#### Brought to You by the Letter F
+
+- [F() objects](https://docs.djangoproject.com/en/3.0/ref/models/expressions/#f-expressions) are useful when you need to access database values in real-time. These objects let you refer to a value of a field as it currently is in the database, instead of how it is in an instance that may be outdated (helps to avoid race conditions), e.g.:
+
+  ```
+  # Example assumes `quiz.times_taken` starts at 0.
+
+  >>> from courses.models import Quiz
+
+  >>> from django.db.models import F
+
+  >>> quiz = Quiz.objects.latest('id')
+
+  >>> quiz.times_taken = F('times_taken') + 1
+
+  >>> quiz.save()
+
+  >>> quiz.times_taken
+
+  <CombinedExpression: F(times_taken) + Value(1)>
+
+  >>> quiz.refresh_from_db()
+
+  >>> quiz.times_taken
+
+  1
+
+  >>> Quiz.objects.all().update(times_taken=F('times_taken')+1)
+
+  >>> quiz.refresh_from_db()
+
+  >>> quiz.times_taken
+
+  2
+  ```
+
+#### Mind your Ps and Qs
+
+- You can perform complex lookups with [Q objects](https://docs.djangoproject.com/en/3.0/topics/db/queries/#complex-lookups-with-q-objects), e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  from django.db.models import Q
+
+  # ...
+
+  def search(request):
+      term = request.GET.get('q')
+      # Get courses where the title contains the term (case insensitive).
+      courses = models.Course.objects.filter(
+          # Q objects are independent queries. The pipe character acts as an
+          # "OR" operator (i.e., a UNION query). If you separate the two
+          # queries with a comma, that acts as an "AND" operator.
+          Q(title__icontains=term)|Q(description__icontains=term),
+          # Note that `published=True` is a keyword argument, while the Q
+          # objects are non-keywords arguments. Keyword arguments must ALWAYS
+          # go after non-keyword arguments.
+          published=True
+      )
+      return render(request, 'courses/course_list.html', {'courses': courses})
+  ```
+
+- **NOTE:** It may often be better to use a dedicated search engine like Elasticsearch rather than building a solution with Q objects.
+
+#### Aggregate and Annotate
+
+- [Annotations](https://docs.djangoproject.com/en/3.0/topics/db/aggregation/) let you run SQL operations on each item in a queryset and then append the result as a new attribute. While **annotations** are run on each individual item in a queryset, **aggregates** are run on the entire queryset (and they return a dictionary rather than a queryset)
+
+- Example:
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  from django.db.models import Q, Count, Sum
+
+  # ...
+
+  def course_list(request):
+      courses = models.Course.objects.filter(
+          published=True
+      ).annotate(
+          # `total_steps` will be added as a new attribute on each queryset.
+          # Add `distinct=True` so each text and quiz are only counted once.
+          total_steps=Count('text', distinct=True)+Count('quiz', distinct=True)
+      )
+      total = courses.aggregate(total=Sum('total_steps'))
+      email = 'questions@learning_site.com'
+      return render(request, 'courses/course_list.html', {
+          'courses': courses,
+          'total': total,
+          'email': email,
+      })
+  ```
+
+- **NOTE:** Aggregates can add a significant amount to your query time, so you should always monitor them with DjDT.

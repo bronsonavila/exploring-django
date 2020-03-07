@@ -3,6 +3,7 @@ from itertools import chain
 from django.contrib import messages
 # Marks a view as requiring a logged-in user.
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q, Count, Sum
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 
@@ -11,11 +12,22 @@ from . import models
 
 
 def course_list(request):
-    courses = models.Course.objects.filter(published=True)
+    courses = models.Course.objects.filter(
+        published=True
+    ).annotate(
+        # `total_steps` will be added as a new attribute on each queryset.
+        # Add `distinct=True` so each text and quiz are only counted once.
+        total_steps=Count('text', distinct=True)+Count('quiz', distinct=True)
+    )
+    total = courses.aggregate(total=Sum('total_steps'))
     email = 'questions@learning_site.com'
     # This `render()` has three arguments: (1) request, (2) template path, and
     # (3) context dictionary. The first two are always required.
-    return render(request, 'courses/course_list.html', {'courses': courses, 'email': email})
+    return render(request, 'courses/course_list.html', {
+        'courses': courses,
+        'total': total,
+        'email': email,
+    })
 
 
 # Django automatically provides `request`, and we provide the
@@ -213,5 +225,13 @@ def search(request):
     term = request.GET.get('q')
     # Get courses where the title contains the term (case insensitive).
     courses = models.Course.objects.filter(
-        title__icontains=term, published=True)
+        # Q objects are independent queries. The pipe character acts as an
+        # "OR" operator (i.e., a UNION query). If you separate the two
+        # queries with a comma, that acts as an "AND" operator.
+        Q(title__icontains=term)|Q(description__icontains=term),
+        # Note that `published=True` is a keyword argument, while the Q
+        # objects are non-keywords arguments. Keyword arguments must ALWAYS
+        # go after non-keyword arguments.
+        published=True
+    )
     return render(request, 'courses/course_list.html', {'courses': courses})

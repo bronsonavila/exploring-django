@@ -10,6 +10,7 @@
 
 {% block content %}
   <h1>Courses</h1>
+  <p>Total number of quizzes and steps: {{ total.total }}</p>
   <div class="cards">
     {% for course in courses %}
     <div class="card">
@@ -24,6 +25,9 @@
           {% else %}
             {{ description|linebreaks|truncatewords:5 }}
             <a href="{% url 'courses:detail' pk=course.pk %}">Read More</a>
+          {% endif %}
+          {% if course.total_steps %}
+            <p><strong>Steps:</strong> {{ course.total_steps }}</p>
           {% endif %}
           <div>Created on: {{ course.created_at|date:'F j, Y' }}</div>
         {% endwith %}

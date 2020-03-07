@@ -59,6 +59,7 @@ class Text(Step):
 
 class Quiz(Step):
     total_questions = models.IntegerField(default=4)
+    times_taken = models.IntegerField(default=0, editable=False)
 
     class Meta:
         verbose_name_plural = 'Quizzes'
