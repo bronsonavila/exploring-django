@@ -2550,3 +2550,113 @@
   1. `prefetch_related` is for getting lots of other items. This is the method you want if you're following a "reverse relationship", like "quiz questions".
 
   2. `select_related` is for getting smaller amounts of items, usually just one. Usually this will relate to a foreign key field on the model you're originally selecting, like going from question to quiz.
+
+## Customizing the Django Admin
+
+### Using the Django Admin
+
+#### Your First Admin Customization
+
+- To begin customizing the admin view, (1) create a directory named `admin/` under the `templates/` directory at the project level, and (2) create a file named `base_site.html` and insert the following code that can be modified as needed (obtained from the Django source code, available [here](https://github.com/django/django/blob/master/django/contrib/admin/templates/admin/base_site.html)):
+
+  ```html
+  {% extends "admin/base.html" %}
+
+  {% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+  {% block branding %}
+  <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+  {% endblock %}
+
+  {% block nav-global %}{% endblock %}
+  ```
+
+  - **NOTE:** Refer to [this page](https://github.com/django/django/tree/master/django/contrib/admin/templates/admin) of the source code to see all admin templates.
+
+#### Changing Field Order
+
+- By default, Django's admin displays all fields for each model in the order they appear in the class. You can specify which fields appear in the admin view and their order as follows:
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  from django.contrib import admin
+
+  from . import models
+
+
+  class QuizAdmin(admin.ModelAdmin):
+      fields = ['course', 'title', 'description', 'order', 'total_questions']
+
+
+  admin.site.register(models.Quiz, QuizAdmin)
+  ```
+
+### Customizing the Django Admin
+
+#### Adding Search and Filters
+
+- You can add a **search field** and **filter** to any admin list view (e.g., Home > Courses > Courses):
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class CourseAdmin(admin.ModelAdmin):
+      inlines = [TextInline, QuizInline]
+      # Insert the name of attributes that will be made searchable.
+      search_fields = ['title', 'description']
+      # Filter courses by creation date and "live" status.
+      list_filter = ['created_at', 'published']
+  ```
+
+#### Building Custom Filters
+
+- You can create your own classes that act as custom filters, e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class YearListFilter(admin.SimpleListFilter):
+      # `title` appears after the word "By" in the filter sidebar.
+      title = 'year created'
+      # `parameter_name` is used in the URL whenever the filter is selected.
+      parameter_name = 'year'
+
+      # Creates the clickable links for the filter. Returns a tuple of tuples.
+      def lookups(self, request, model_admin):
+          return (
+              # First value appears in the URL, the second in the sidebar.
+              ('2016', '2016'),
+              ('2019', '2019'),
+              ('2020', '2020'),
+          )
+
+      # Returns the objects that fit the parameters of the filter.
+      def queryset(self, request, queryset):
+          if self.value():
+              return queryset.filter(
+                  created_at__gte=date(int(self.value()), 1, 1),
+                  created_at__lte=date(int(self.value()), 12, 31)
+              )
+
+
+  class CourseAdmin(admin.ModelAdmin):
+      inlines = [TextInline, QuizInline]
+      search_fields = ['title', 'description']
+      list_filter = ['created_at', 'published', YearListFilter]
+  ```
+
+#### Customizing What You See
+
+- You can customize a list view to show more than just the main piece of information (i.e., whatever is returned by the `__str__` method of your model) about an object:
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class CourseAdmin(admin.ModelAdmin):
+      inlines = [TextInline, QuizInline]
+      search_fields = ['title', 'description']
+      list_filter = ['created_at', 'published', YearListFilter]
+      # Show creation date and published status with title in list view.
+      list_display = ['title', 'created_at', 'published']
+  ```
