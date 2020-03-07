@@ -18,6 +18,9 @@
           <a href="{{ step.get_absolute_url }}">{{ step.title }}</a>
         </h3>
         {{ step.description|linebreaks }}
+        {% if step.question_set.all %}
+          <p>Total Questions: {{ step.question_set.count }}</p>
+        {% endif %}
       {% endfor %}
     </section>
   </article>

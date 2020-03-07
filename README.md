@@ -2486,3 +2486,67 @@
   ```
 
 - **NOTE:** Aggregates can add a significant amount to your query time, so you should always monitor them with DjDT.
+
+#### Related Records
+
+- You can use certain ORM functions to help reduce the number of superfluous queries made against the database, e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/views.py
+
+  from django.http import HttpResponseRedirect, Http404
+
+  # ...
+
+  def course_detail(request, pk):
+      try:
+          # `prefetch_related` will fetch everything in the `quiz_set` and the
+          # `text_set` and assign them to the items in the resulting queryset.
+          # Generates 4 SQL queries (courses, quiz sets, text sets, question sets).
+          course = models.Course.objects.prefetch_related(
+              'quiz_set', 'text_set', 'quiz_set__question_set'
+          ).get(pk=pk, published=True)
+      except models.Course.DoesNotExist:
+          raise Http404
+      else:
+          steps = sorted(chain(
+              course.text_set.all(),
+              course.quiz_set.all()
+          ), key=lambda step: step.order)
+      return render(request, 'courses/course_detail.html', {
+          'course': course,
+          'steps': steps,
+      })
+
+
+  def quiz_detail(request, course_pk, step_pk):
+      try:
+          # `select_related` gets foreign key related records.
+          step = models.Quiz.objects.select_related(
+              'course'
+          ).prefetch_related(
+              'question_set', 'question_set__answer_set'
+          ).get(
+              course_id=course_pk, pk=step_pk, course__published=True
+          )
+      except models.Quiz.DoesNotExist:
+          raise Http404
+      else:
+          return render(request, 'courses/step_detail.html', {'step': step})
+  ```
+
+- Teacher's Notes:
+
+  `.select_related()` and `.prefetch_related()`.
+
+  Remember the direction each of these goes. `select_related` is used on the model when you have the `ForeignKey` field. `prefetch_related` is used on the model that's related ***to*** by the `ForeignKey` field.
+
+  `prefetch_related` won't always reduce the number of queries. It helps to prevent extra queries being run in your templates, though, by fetching and attaching the data before the template is ever rendered.
+
+  `select_related`, when used correctly, can drastically reduce the number of queries you run.
+
+- Two additional guidelines from the lecturer:
+
+  1. `prefetch_related` is for getting lots of other items. This is the method you want if you're following a "reverse relationship", like "quiz questions".
+
+  2. `select_related` is for getting smaller amounts of items, usually just one. Usually this will relate to a foreign key field on the model you're originally selecting, like going from question to quiz.

@@ -4,7 +4,7 @@ from django.contrib import messages
 # Marks a view as requiring a logged-in user.
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Count, Sum
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render
 
 from . import forms
@@ -33,14 +33,27 @@ def course_list(request):
 # Django automatically provides `request`, and we provide the
 # primary key (the ID, by default) through the URL.
 def course_detail(request, pk):
-    # Show 404 if the Course object is not found.
-    course = get_object_or_404(models.Course, pk=pk, published=True)
+    try:
+        # `prefetch_related` will fetch everything in the `quiz_set` and the
+        # `text_set` and assign them to the items in the resulting queryset.
+        # Generates 4 SQL queries (courses, quiz sets, text sets, question sets).
+        course = models.Course.objects.prefetch_related(
+            'quiz_set', 'text_set', 'quiz_set__question_set'
+        ).get(pk=pk, published=True)
+    except models.Course.DoesNotExist:
+        raise Http404
     # Get all text and quiz steps, combine them, and sort by `order` attribute.
     # `text_set` is a query set that can be queried against for all `text` records
     # belonging to a course.
-    steps = sorted(chain(course.text_set.all(),
-                         course.quiz_set.all()), key=lambda step: step.order)
-    return render(request, 'courses/course_detail.html', {'course': course, 'steps': steps})
+    else:
+        steps = sorted(chain(
+            course.text_set.all(),
+            course.quiz_set.all()
+        ), key=lambda step: step.order)
+    return render(request, 'courses/course_detail.html', {
+        'course': course,
+        'steps': steps,
+    })
 
 
 def text_detail(request, course_pk, step_pk):
@@ -52,11 +65,19 @@ def text_detail(request, course_pk, step_pk):
 
 
 def quiz_detail(request, course_pk, step_pk):
-    step = get_object_or_404(models.Quiz,
-                             course_id=course_pk,
-                             pk=step_pk,
-                             course__published=True)
-    return render(request, 'courses/step_detail.html', {'step': step})
+    try:
+        # `select_related` gets foreign key related records.
+        step = models.Quiz.objects.select_related(
+            'course'
+        ).prefetch_related(
+            'question_set', 'question_set__answer_set'
+        ).get(
+            course_id=course_pk, pk=step_pk, course__published=True
+        )
+    except models.Quiz.DoesNotExist:
+        raise Http404
+    else:
+        return render(request, 'courses/step_detail.html', {'step': step})
 
 
 @login_required
@@ -228,7 +249,7 @@ def search(request):
         # Q objects are independent queries. The pipe character acts as an
         # "OR" operator (i.e., a UNION query). If you separate the two
         # queries with a comma, that acts as an "AND" operator.
-        Q(title__icontains=term)|Q(description__icontains=term),
+        Q(title__icontains=term) | Q(description__icontains=term),
         # Note that `published=True` is a keyword argument, while the Q
         # objects are non-keywords arguments. Keyword arguments must ALWAYS
         # go after non-keyword arguments.
