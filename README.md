@@ -2353,3 +2353,37 @@
 
   (<Course: Django REST Framework>, True)
   ```
+
+#### Take Control
+
+- Example of how to use the `values()` method:
+
+  ```python
+
+  # ./django-basics/learning_site/courses/templatetags/course_extras.py
+
+  @register.inclusion_tag('courses/course_nav.html')
+  def nav_courses_list():
+      """Returns dictionary of the 5 most recent courses to display in navigation pane."""
+      # The `-` before `created_at` indicates items will be sorted in descending order.
+      # `values()` returns a list of dictionaries (one for each selected instance).
+      # Each dict's keys are the model's attributes. If you pass specific
+      # attributes as arguments, then only those attributes will be included.
+      courses = Course.objects.filter(published=True).order_by(
+          '-created_at').values('id', 'title')[:5]
+      return {'courses': courses}
+  ```
+
+  - **NOTE:** Alternatively, you could use [values_list](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#values-list), which returns a list of tuples, rather than a list of dictionaries. `values_list()` is most useful when you need to produce an ordered, structured representation of model instances.
+
+- Example of `datetimes()`:
+
+  ```
+  >>> from courses.models import Course
+
+  >>> dates = Course.objects.datetimes('created_at', 'year')
+
+  >>> dates
+
+  <QuerySet [datetime.datetime(2016, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>), datetime.datetime(2019, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>), datetime.datetime(2020, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>)]>
+  ```

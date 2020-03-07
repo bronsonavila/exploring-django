@@ -22,17 +22,25 @@ def newest_course():
 # be required to register the template tag:
 # register.simple_tag(newest_course)
 
+
 @register.inclusion_tag('courses/course_nav.html')
 def nav_courses_list():
-    """Returns dictionary of courses to display as navigation pane."""
-    courses = Course.objects.filter(published=True)
+    """Returns dictionary of the 5 most recent courses to display in navigation pane."""
+    # The `-` before `created_at` indicates items will be sorted in descending order.
+    # `values()` returns a list of dictionaries (one for each selected instance).
+    # Each dict's keys are the model's attributes. If you pass specific
+    # attributes as arguments, then only those attributes will be included.
+    courses = Course.objects.filter(published=True).order_by(
+        '-created_at').values('id', 'title')[:5]
     return {'courses': courses}
+
 
 @register.filter
 def time_estimate(word_count):
     """Estimates the number of minutes to complete a step."""
     minutes = round(word_count/20)
     return minutes
+
 
 @register.filter
 def markdown_to_html(markdown_text):
