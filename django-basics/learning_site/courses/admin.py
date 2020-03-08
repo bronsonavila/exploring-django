@@ -4,6 +4,15 @@ from datetime import date
 from . import models
 
 
+def make_published(modeladmin, request, queryset):
+    queryset.update(status='p', published=True)
+
+
+# The message users will see when using the "Action" dropdown menu
+# to change the published status of their courses.
+make_published.short_description = 'Mark selected courses as Published'
+
+
 class TextInline(admin.StackedInline):
     model = models.Text
     fieldsets = (
@@ -52,8 +61,14 @@ class CourseAdmin(admin.ModelAdmin):
     # Filter courses by creation date and "live" status.
     list_filter = ['created_at', 'published', YearListFilter]
     # Show additional fields along with the title in list view.
-    list_display = ['title', 'created_at', 'published', 'time_to_complete']
-    list_editable = ['published']
+    list_display = ['title',
+                    'created_at',
+                    'time_to_complete',
+                    'published',
+                    'status']
+    list_editable = ['status']
+    # Add the `make_published()` function to the "Action" dropdown menu.
+    actions = [make_published]
 
     class Media:
         js = ('js/vendor/markdown.js', 'js/preview.js')

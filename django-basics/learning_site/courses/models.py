@@ -4,6 +4,12 @@ from django.db import models
 # Django's built-in "User" model can be used when authentication is required.
 from django.contrib.auth.models import User
 
+STATUS_CHOICES = (
+    ('i', 'In Progress'),
+    ('r', 'In Review'),
+    ('p', 'Published'),
+)
+
 # The Course class inherits from `models.Model`.
 class Course(models.Model):
     # Set value automatically to current time when a record is first created.
@@ -17,6 +23,7 @@ class Course(models.Model):
     )
     subject = models.CharField(default='', max_length=100)
     published = models.BooleanField(default=False)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='i')
 
     # "Dunder string" defines how an instance is turned into a string. This is
     # used when Django prints a reference to an instance (e.g., in the shell).

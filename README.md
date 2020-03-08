@@ -2801,3 +2801,53 @@
   ```
 
   - **NOTE:** The implementation is rather crude (as the Markdown preview only updates when the form is saved, rather than in real time). It should not likely ever be implemented as is, and it is only included here for reference.
+
+#### Adding Custom Admin Actions
+
+- You can add custom admin actions to perform bulk operations (e.g., setting multiple courses to "Published" from the list view):
+
+  ```python
+  # ./django-basics/learning_site/courses/models.py
+
+  STATUS_CHOICES = (
+      ('i', 'In Progress'),
+      ('r', 'In Review'),
+      ('p', 'Published'),
+  )
+
+  class Course(models.Model):
+      created_at = models.DateTimeField(auto_now_add=True)
+      title = models.CharField(max_length=255)
+      description = models.TextField()
+      teacher = models.ForeignKey(
+          User,
+          on_delete=models.CASCADE,
+      )
+      subject = models.CharField(default='', max_length=100)
+      published = models.BooleanField(default=False)
+      status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='i')
+  ```
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  def make_published(modeladmin, request, queryset):
+      queryset.update(status='p', published=True)
+
+  # This is the message users will see when using the "Action" dropdown menu
+  # to change the published status of their courses.
+  make_published.short_description = 'Mark selected courses as Published'
+
+  class CourseAdmin(admin.ModelAdmin):
+      inlines = [TextInline, QuizInline]
+      search_fields = ['title', 'description']
+      list_filter = ['created_at', 'published', YearListFilter]
+      list_display = ['title',
+                      'created_at',
+                      'time_to_complete',
+                      'published',
+                      'status']
+      list_editable = ['status']
+      # Add the `make_published()` function to the "Action" dropdown menu.
+      actions = [make_published]
+  ```
