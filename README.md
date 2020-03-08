@@ -184,7 +184,7 @@
 
 - **Installation**
 
-  - Run `pip install peewee` to install the [Peewee](https://peewee.readthedocs.io/en/latest/) ORM.
+  - Run `pip install peewee` to install the [**Peewee**](https://peewee.readthedocs.io/en/latest/) ORM.
   - To use PeeWee with a MySQL database, run `pip install pymysql` to install the required driver.
 
 - **Example** (MySQL):
@@ -585,7 +585,7 @@
 
   - **NOTE:** The `id` field will automatically be created by Django.
 
-  - **NOTE:** See the [Model Field Reference](https://docs.djangoproject.com/en/3.0/ref/models/fields/) for a complete list of model field types.
+  - **NOTE:** See the [**Model Field Reference**](https://docs.djangoproject.com/en/3.0/ref/models/fields/) for a complete list of model field types.
 
 - Whenever your model design has changed (e.g., adding a new table or new columns), you need to migrate your database again by **making migrations** with a `manage.py` command:
 
@@ -777,7 +777,7 @@
 
 #### Templates
 
-- In Django, templates can be in any language that you want (e.g., HTML, JSON, XML). Django ships built-in backends for its own template system, called the Django template language (DTL), and for [Jinja2](http://jinja.pocoo.org/).
+- In Django, templates can be in any language that you want (e.g., HTML, JSON, XML). Django ships built-in backends for its own template system, called the Django template language (DTL), and for [**Jinja2**](http://jinja.pocoo.org/).
 
   - **NOTE:** This course only covers the DTL, not Jinja2.
 
@@ -840,7 +840,7 @@
 
 #### Static Assets
 
-- The location of [static assets](https://docs.djangoproject.com/en/3.0/howto/static-files/) (e.g., CSS, JS, images) must be referenced in `settings.py` by adding a setting named `STATICFILES_DIRS` (which is a tuple):
+- The location of [**static assets**](https://docs.djangoproject.com/en/3.0/howto/static-files/) (e.g., CSS, JS, images) must be referenced in `settings.py` by adding a setting named `STATICFILES_DIRS` (which is a tuple):
 
   ```python
   STATICFILES_DIRS = (
@@ -914,7 +914,7 @@
 
   - **NOTE:** When adding a new model, remember to (1) register your model, (2) make a new migration, and (3) run the migration.
 
-- You can now add an admin form for editing/creating Steps (i.e., an [inline](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#inlinemodeladmin-objects)) within the admin form for editing/creating Courses by modifying `admin.py` as follows:
+- You can now add an admin form for editing/creating Steps (i.e., an [**inline**](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#inlinemodeladmin-objects)) within the admin form for editing/creating Courses by modifying `admin.py` as follows:
 
   ```python
   from django.contrib import admin
@@ -1000,7 +1000,7 @@
   ]
   ```
 
-  - **NOTE:** [`prefetch_related`](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.prefetch_related) and [`select_related`](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.select_related) may also be useful in making queries.
+  - **NOTE:** [**prefetch_related**](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.prefetch_related) and [**select_related**](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.select_related) may also be useful in making queries.
 
 #### Ordering and 404s
 
@@ -1238,7 +1238,7 @@
 
 ### Using Template Libraries
 
-- Consider using the [Humanize `contrib` package](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/) for additional filters that are helpful for displaying data values in a more human-readable format. To use this package, add `django.contrib.humanize` to your `INSTALLED_APPS` in `settings.py`. Once installed, load the package into the template file, e.g.:
+- Consider using the [**Humanize `contrib` package**](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/) for additional filters that are helpful for displaying data values in a more human-readable format. To use this package, add `django.contrib.humanize` to your `INSTALLED_APPS` in `settings.py`. Once installed, load the package into the template file, e.g.:
 
   ```python
   {% load humanize %}
@@ -1259,7 +1259,7 @@
 
 ### Built-in Tags and Filters
 
-- Examples of `wordcount`, `truncatewords`, `urlize`, and Django's custom [date filter](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/#date):
+- Examples of `wordcount`, `truncatewords`, `urlize`, and Django's custom [**date filter**](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/#date):
 
   ```html
   <!-- Add an ellipsis and "Read More" link for descriptions longer than 5 words. -->
@@ -1282,7 +1282,7 @@
 
 ### DIY Custom Tags
 
-- [Custom template tags](https://docs.djangoproject.com/en/3.0/howto/custom-template-tags/#simple-tags) must be located in an app's `templatetags/` directory.
+- [**Custom template tags**](https://docs.djangoproject.com/en/3.0/howto/custom-template-tags/#simple-tags) must be located in an app's `templatetags/` directory.
 
   - **IMPORTANT:** Be sure to place an empty `__init__.py` file in the directory; otherwise, the directory will not be recognized as a Python package.
 
@@ -1372,7 +1372,7 @@
 
 ### Custom Tags
 
-- You can use a Python library called [markdown2](https://github.com/trentm/python-markdown2) to transform Markdown text into HTML. Run `pip install markdown2` to install the library.
+- You can use a Python library called [**markdown2**](https://github.com/trentm/python-markdown2) to transform Markdown text into HTML. Run `pip install markdown2` to install the library.
 
 - Example:
 
@@ -1407,7 +1407,7 @@
 
 #### Creating a Form
 
-- If you want to make a [form](https://docs.djangoproject.com/en/3.0/topics/forms/) for your general site (e.g., a contact form), first create a file named `forms.py` in your project's stub directory (e.g., `./learning_site/learning_site/forms.py`). Each form should exist as a class within `forms.py`, e.g.:
+- If you want to make a [**form**](https://docs.djangoproject.com/en/3.0/topics/forms/) for your general site (e.g., a contact form), first create a file named `forms.py` in your project's stub directory (e.g., `./learning_site/learning_site/forms.py`). Each form should exist as a class within `forms.py`, e.g.:
 
   ```python
   # ./django-basics/learning_site/learning_site/forms.py
@@ -1469,7 +1469,7 @@
   {% endblock %}
   ```
 
-  - **IMPORTANT:** The `csrf_token` is used to protect against [Cross Site Request Forgeries](https://docs.djangoproject.com/en/3.0/ref/csrf/).
+  - **IMPORTANT:** The `csrf_token` is used to protect against [**Cross Site Request Forgeries**](https://docs.djangoproject.com/en/3.0/ref/csrf/).
 
 #### Handling a Form in a View
 
@@ -1484,7 +1484,7 @@
   EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'suggestions')
   ```
 
-  - **NOTE:** Refer to the [documentation](https://docs.djangoproject.com/en/3.0/topics/email/) for more information on sending a real email.
+  - **NOTE:** Refer to the [**documentation**](https://docs.djangoproject.com/en/3.0/topics/email/) for more information on sending a real email.
 
   ```python
   # ./django-basics/learning_site/learning_site/views.py
@@ -1574,7 +1574,7 @@
 
 #### Using and Creating Validators
 
-- Rather than using a custom field validation, you may also be able to rely upon Django's [validators](https://docs.djangoproject.com/en/3.0/ref/validators/), e.g.:
+- Rather than using a custom field validation, you may also be able to rely upon Django's [**validators**](https://docs.djangoproject.com/en/3.0/ref/validators/), e.g.:
 
   ```python
   # ./django-basics/learning_site/learning_site/forms.py
@@ -1647,7 +1647,7 @@
 
 #### Abstract Inheritance
 
-- [Abstract inheritance](https://docs.djangoproject.com/en/3.0/topics/db/models/#abstract-base-classes) allows for models to inherit from other models which are not inserted in the database, e.g.:
+- [**Abstract inheritance**](https://docs.djangoproject.com/en/3.0/topics/db/models/#abstract-base-classes) allows for models to inherit from other models which are not inserted in the database, e.g.:
 
   ```python
   class User(models.Model):
@@ -1668,7 +1668,7 @@
 
 #### Multiple Choice and True/False Questions
 
-- The second type of model inheritance used by Django is [multi-table inheritance](https://docs.djangoproject.com/en/3.0/topics/db/models/#multi-table-inheritance), which occurs when each model in the heirarcy corresponds to its own database table and can be queried and created individually. (You will probably want to avoid using MTI most of the time.)
+- The second type of model inheritance used by Django is [**multi-table inheritance**](https://docs.djangoproject.com/en/3.0/topics/db/models/#multi-table-inheritance), which occurs when each model in the heirarcy corresponds to its own database table and can be queried and created individually. (You will probably want to avoid using MTI most of the time.)
 
 - Example:
 
@@ -1711,7 +1711,7 @@
 
 #### What are Model Forms?
 
-- When you create a model in an app, Django automatically creates a form for creating/editing instances of registered models via the admin view. However, if you want to create/edit models from outside of the admin view (e.g., to allow logged-in users to modify their own data), Django provides [model forms](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/).
+- When you create a model in an app, Django automatically creates a form for creating/editing instances of registered models via the admin view. However, if you want to create/edit models from outside of the admin view (e.g., to allow logged-in users to modify their own data), Django provides [**model forms**](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/).
 
 - To create a model form, go to your app directory and create a file named `forms.py`. Example:
 
@@ -1896,7 +1896,7 @@
 
 #### Formsets
 
-- [Formsets](https://docs.djangoproject.com/en/3.0/topics/forms/formsets/) allow you to create/edit multiple instances of a model at once. Example:
+- [**Formsets**](https://docs.djangoproject.com/en/3.0/topics/forms/formsets/) allow you to create/edit multiple instances of a model at once. Example:
 
   ```python
   # ./django-basics/learning_site/courses/forms.py
@@ -1951,7 +1951,7 @@
 
 #### Inline Model Formset
 
-- [Inline formsets](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/#inline-formsets) appear in the model form of another model.
+- [**Inline formsets**](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/#inline-formsets) appear in the model form of another model.
 
 - Example (allows a user to modify a question's answers directly from the "Question" form, rather than needing to access a separate "Answers" form):
 
@@ -2102,9 +2102,9 @@
   ```
 
 - Course Notes:
-  - Recommended [tutorial](https://whoisnicoleharris.com/2015/01/06/implementing-django-formsets.html) by Nicole Harris.
+  - Recommended [**tutorial**](https://whoisnicoleharris.com/2015/01/06/implementing-django-formsets.html) by Nicole Harris.
 
-  - Consider using a [form wizard](https://django-formtools.readthedocs.io/en/latest/wizard.html#) for more advanced forms.
+  - Consider using a [**form wizard**](https://django-formtools.readthedocs.io/en/latest/wizard.html#) for more advanced forms.
 
 #### Custom Form Media
 
@@ -2180,7 +2180,7 @@
 
 #### Django Debug Toolbar
 
-- Install the [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/1.4/index.html) (DjDT) by running the following command:
+- Install the [**Django Debug Toolbar**](https://django-debug-toolbar.readthedocs.io/en/1.4/index.html) (DjDT) by running the following command:
 
   ```
   $ pip install django-debug-toolbar
@@ -2214,7 +2214,7 @@
 
 #### Restricting Results
 
-- You can refine a queryset by adding [`filter()` conditions](https://docs.djangoproject.com/en/3.0/topics/db/queries/#retrieving-specific-objects-with-filters).
+- You can refine a queryset by adding [**filter() conditions**](https://docs.djangoproject.com/en/3.0/topics/db/queries/#retrieving-specific-objects-with-filters).
 
 - Example of filtering database results:
 
@@ -2392,7 +2392,7 @@
 
 #### Brought to You by the Letter F
 
-- [F() objects](https://docs.djangoproject.com/en/3.0/ref/models/expressions/#f-expressions) are useful when you need to access database values in real-time. These objects let you refer to a value of a field as it currently is in the database, instead of how it is in an instance that may be outdated (helps to avoid race conditions), e.g.:
+- [**F() objects**](https://docs.djangoproject.com/en/3.0/ref/models/expressions/#f-expressions) are useful when you need to access database values in real-time. These objects let you refer to a value of a field as it currently is in the database, instead of how it is in an instance that may be outdated (helps to avoid race conditions), e.g.:
 
   ```
   # Example assumes `quiz.times_taken` starts at 0.
@@ -2428,7 +2428,7 @@
 
 #### Mind your Ps and Qs
 
-- You can perform complex lookups with [Q objects](https://docs.djangoproject.com/en/3.0/topics/db/queries/#complex-lookups-with-q-objects), e.g.:
+- You can perform complex lookups with [**Q objects**](https://docs.djangoproject.com/en/3.0/topics/db/queries/#complex-lookups-with-q-objects), e.g.:
 
   ```python
   # ./django-basics/learning_site/courses/views.py
@@ -2457,7 +2457,7 @@
 
 #### Aggregate and Annotate
 
-- [Annotations](https://docs.djangoproject.com/en/3.0/topics/db/aggregation/) let you run SQL operations on each item in a queryset and then append the result as a new attribute. While **annotations** are run on each individual item in a queryset, **aggregates** are run on the entire queryset (and they return a dictionary rather than a queryset)
+- [**Annotations**](https://docs.djangoproject.com/en/3.0/topics/db/aggregation/) let you run SQL operations on each item in a queryset and then append the result as a new attribute. While **annotations** are run on each individual item in a queryset, **aggregates** are run on the entire queryset (and they return a dictionary rather than a queryset)
 
 - Example:
 
@@ -2592,7 +2592,7 @@
   admin.site.register(models.Quiz, QuizAdmin)
   ```
 
-### Customizing the Django Admin
+### Customizing the List View
 
 #### Adding Search and Filters
 
@@ -2660,3 +2660,144 @@
       # Show creation date and published status with title in list view.
       list_display = ['title', 'created_at', 'published']
   ```
+
+#### Customizing Attributes
+
+- You can use methods as custom attributes on your models, which can then be displayed in the list view of the admin site, e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/models.py
+
+  class Course(models.Model):
+      created_at = models.DateTimeField(auto_now_add=True)
+      title = models.CharField(max_length=255)
+      description = models.TextField()
+      teacher = models.ForeignKey(
+          User,
+          on_delete=models.CASCADE,
+      )
+      subject = models.CharField(default='', max_length=100)
+      published = models.BooleanField(default=False)
+
+      def __str__(self):
+          return self.title
+
+      def time_to_complete(self):
+          # Must import `course_extras` within this method rather than at the top
+          # of the file because `course_extras` imports the `Course` model as a
+          # dependency. Importing `course_extras` at the top of this file (before
+          # the `Course` model is declared) will lead to a recursive import error.
+          from courses.templatetags.course_extras import time_estimate
+          return '{} min'.format(time_estimate(len(self.description.split())))
+  ```
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class CourseAdmin(admin.ModelAdmin):
+      inlines = [TextInline, QuizInline]
+      search_fields = ['title', 'description']
+      list_filter = ['created_at', 'published', YearListFilter]
+      # `time_to_complete` will show, e.g.: "2 min"
+      list_display = ['title', 'created_at', 'published', 'time_to_complete']
+  ```
+
+#### Editing the List View
+
+- You can use `list_editable` to edit items in your database directly from the list view without entering a detail view, e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class QuestionAdmin(admin.ModelAdmin):
+      inlines = [AnswerInline]
+      search_fields = ['prompt']
+      list_display = ['prompt', 'quiz', 'order']
+      list_editable = ['quiz', 'order']
+  ```
+
+### Customizing the Detail View
+
+#### Customize the Look of the Detail View
+
+- You can use [**fieldsets**](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets) to customize how the detail view looks, including grouping related fields together, adding horizontal select options, and showing choices in tabular format; e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class TextAdmin(admin.ModelAdmin):
+      # NOTE: Do not use `fields` when using `fieldsets`.
+
+      # `fieldsets` is a list of two-tuples. Each two-tuple represents a
+      # separate section of the form.
+      fieldsets = (
+          # The first element is the heading that will be displayed above the
+          # fieldset; the second element consists of the field options.
+          (None, {
+              'fields': ('course', 'title', 'order', 'description')
+          }),
+          ('Add content', {
+              # Trailing comma indicates this is a tuple.
+              'fields': ('content',),
+              'classes': ('collapse',)  # Makes the section collapsible.
+          })
+      )
+  ```
+
+#### Horizontal Select and TabularInline
+
+- You can replace a dropdown menu with a selection of radio buttons, and change fields from stacking on top of each other to being in a tabular format; e.g.:
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class AnswerInline(admin.TabularInline):
+      model = models.Answer
+
+  # ...
+
+  class QuestionAdmin(admin.ModelAdmin):
+      inlines = [AnswerInline]
+      search_fields = ['prompt']
+      list_display = ['prompt', 'quiz', 'order']
+      list_editable = ['quiz', 'order']
+      # Displays the quiz options as a set of horizontal radio buttons.
+      radio_fields = {'quiz': admin.HORIZONTAL}
+  ```
+
+#### Making a Text Preview
+
+- You can add a WYSIWYG editor preview by modifying the default `change_form` and `fieldset` HTML templates. Make duplicates of each file within your project's `templates/admin/{APP}/{MODEL}/` directory. See the following files for details:
+
+  - `django-basics/learning_site/templates/admin/courses/course/change_form.html`
+
+  - `django-basics/learning_site/templates/admin/courses/course/includes/fieldset.html`
+
+- **NOTE:** Rather than copying the original template from the GitHub repo, you can always use DjDT's "Templates" tab to determine (1) which admin templates are being used, and (2) the filepath to the template in the source code on your local machine. It is best to copy from these local templates, as the version of the template from the `master` branch of the [Django source code](https://github.com/django/django/blob/master/django/contrib/admin/templates/admin/) may not be compatible with that installed on your local machine.
+
+#### Finishing the Markdown Preview
+
+- Refer to the following files to see how a Markdown preview box was created:
+
+  - `django-basics/learning_site/assets/js/vendor/markdown.js`
+  - `django-basics/learning_site/assets/js/preview.js`
+  - `django-basics/learning_site/assets/css/preview.css`
+
+  ```python
+  # ./django-basics/learning_site/courses/admin.py
+
+  class CourseAdmin(admin.ModelAdmin):
+      inlines = [TextInline, QuizInline]
+      search_fields = ['title', 'description']
+      list_filter = ['created_at', 'published', YearListFilter]
+      list_display = ['title', 'created_at', 'published', 'time_to_complete']
+      list_editable = ['published']
+
+      class Media:
+          js = ('js/vendor/markdown.js', 'js/preview.js')
+          css = {
+              'all': ('css/preview.css',),
+          }
+  ```
+
+  - **NOTE:** The implementation is rather crude (as the Markdown preview only updates when the form is saved, rather than in real time). It should not likely ever be implemented as is, and it is only included here for reference.

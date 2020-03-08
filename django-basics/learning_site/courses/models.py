@@ -24,6 +24,14 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
+    def time_to_complete(self):
+        # Must import `course_extras` within this method rather than at the top
+        # of the file because `course_extras` imports the `Course` model as a
+        # dependency. Importing `course_extras` at the top of this file (before
+        # the `Course` model is declared) will lead to a recursive import error.
+        from courses.templatetags.course_extras import time_estimate
+        return '{} min'.format(time_estimate(len(self.description.split())))
+
 
 class Step(models.Model):
     title = models.CharField(max_length=255)

@@ -6,13 +6,18 @@ from . import models
 
 class TextInline(admin.StackedInline):
     model = models.Text
+    fieldsets = (
+        (None, {
+            'fields': (('title', 'order'), 'description', 'content')
+        }),
+    )
 
 
 class QuizInline(admin.StackedInline):
     model = models.Quiz
 
 
-class AnswerInline(admin.StackedInline):
+class AnswerInline(admin.TabularInline):
     model = models.Answer
 
 
@@ -46,13 +51,24 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ['title', 'description']
     # Filter courses by creation date and "live" status.
     list_filter = ['created_at', 'published', YearListFilter]
-    # Show creation date and published status with title in list view.
-    list_display = ['title', 'created_at', 'published']
+    # Show additional fields along with the title in list view.
+    list_display = ['title', 'created_at', 'published', 'time_to_complete']
+    list_editable = ['published']
+
+    class Media:
+        js = ('js/vendor/markdown.js', 'js/preview.js')
+        css = {
+            'all': ('css/preview.css',),
+        }
 
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInline]
     search_fields = ['prompt']
+    list_display = ['prompt', 'quiz', 'order']
+    list_editable = ['quiz', 'order']
+    # Displays the quiz options as a set of horizontal radio buttons.
+    radio_fields = {'quiz': admin.HORIZONTAL}
 
 
 class QuizAdmin(admin.ModelAdmin):
@@ -60,7 +76,23 @@ class QuizAdmin(admin.ModelAdmin):
 
 
 class TextAdmin(admin.ModelAdmin):
-    fields = ['course', 'title', 'order', 'description']
+    # Do not use `fields` when using `fieldsets`.
+    # fields = ['course', 'title', 'order', 'description', 'content']
+
+    # `fieldsets` is a list of two-tuples. Each two-tuple represents a
+    # separate section of the form.
+    fieldsets = (
+        # The first element is the heading that will be displayed above the
+        # fieldset; the second element consists of the field options.
+        (None, {
+            'fields': ('course', 'title', 'order', 'description')
+        }),
+        ('Add content', {
+            # Trailing comma indicates this is a tuple.
+            'fields': ('content',),
+            'classes': ('collapse',)  # Makes the section collapsible.
+        })
+    )
 
 
 admin.site.register(models.Course, CourseAdmin)
