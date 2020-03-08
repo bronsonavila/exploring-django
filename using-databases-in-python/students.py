@@ -1,8 +1,10 @@
+import os
 from peewee import *
 
 # Configure MySQL database connection.
-db = MySQLDatabase('students', user='root',
-                   password='strategies123', host='localhost')
+db = MySQLDatabase('students',
+                   user=os.environ['USER'],
+                   password=os.environ['PASSWORD'], host='localhost')
 
 
 # Create a base model (using PeeWee's "Model" class) upon which all other models will

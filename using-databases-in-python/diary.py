@@ -4,11 +4,13 @@
 # file into an executable file that can be ran without being prefaced with
 # "python3". The shebang line above must also be present for this to work (OSX).
 
+import os
 import datetime
 from peewee import *
 
-db = MySQLDatabase('diary', user='root',
-                   password='strategies123', host='localhost')
+db = MySQLDatabase('diary',
+                   user=os.environ['USER'],
+                   password=os.environ['PASSWORD'], host='localhost')
 
 
 class BaseModel(Model):
