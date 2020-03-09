@@ -3254,3 +3254,81 @@
 - Log in via `/api-auth/login/`.
 
   - **NOTE:** You will be redirected to the default route of `/accounts/profile/`, which would require another URL pattern of its own.
+
+#### Model Serializers
+
+- The [**ModelSerializer**](https://www.django-rest-framework.org/api-guide/serializers/#modelserializer) class can be used to turn model instances into JSON and vice versa. The `ModelSerializer` is similar to Django's model forms, and it can automatically generate fields from your models. The class includes automatically generated validators, and has the ability to create and update database objects.
+
+- To begin using model serializers, create a new file named `serializers.py` in your app directory. Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/serializers.py
+
+  from rest_framework import serializers
+
+  from . import models
+
+
+  class ReviewSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = models.Review
+          fields = (
+              'id',
+              'course',
+              'name',
+              'email',
+              'review',
+              'rating',
+              'created_at',
+          )
+          # Sepcify that the `email` field can be supplied by the user,
+          # but it will not be sent back out upon serialization.
+          extra_kwargs = {
+              'email': {'write_only': True}
+          }
+
+
+  class CourseSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = models.Course
+          fields = (
+              'id',
+              'title',
+              'url',
+          )
+  ```
+
+  ```
+  (InteractiveConsole)
+
+  >>> from rest_framework.renderers import JSONRenderer
+
+  >>> from courses.models import Course
+
+  >>> from courses.serializers import CourseSerializer
+
+  >>> course = Course.objects.latest('id')
+
+  >>> course.title
+
+  'Python Collections'
+
+  >>> serializer = CourseSerializer(course)
+
+  >>> serializer
+
+  CourseSerializer(<Course: Python Collections>):
+      id = IntegerField(label='ID', read_only=True)
+      title = CharField(max_length=255)
+      url = URLField(max_length=200, validators=[<UniqueValidator(queryset=Course.objects.all())>])
+
+  >>> serializer.data
+
+  {'id': 2, 'title': 'Python Collections', 'url': 'https://teamtreehouse.com/library/python-collections'}
+
+  >>> JSONRenderer().render(serializer.data)
+
+  b'{"id":2,"title":"Python Collections","url":"https://teamtreehouse.com/library/python-collections"}'
+  ```
+
+  - **NOTE:** The final output provided by `JSONRenderer()` is a [**bytes literal**](https://docs.python.org/3/library/stdtypes.html#bytes) that needs to be converted to a string before it can be used.
