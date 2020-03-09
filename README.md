@@ -3210,3 +3210,47 @@
 
   <h1>{{ page_title }}</h1>
   ```
+
+## Django REST Framework
+
+### Installation
+
+- Install the [Django REST framework](https://www.django-rest-framework.org/) using `pip`:
+
+  ```
+  $ pip install djangorestframework
+  ```
+
+- Add `rest_framework` to your `INSTALLED_APPS` in `settings.py`.
+
+- Configure `REST_FRAMEWORK` settings (such as authentication and permissions) in `settings.py`; e.g.:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/ed_reviews/settings.py
+
+  # REST Framework - contains all DRF settings
+  REST_FRAMEWORK = {
+      'DEFAULT_AUTHENTICATION_CLASSES': (
+          'rest_framework.authentication.SessionAuthentication',
+      ),
+      'DEFAULT_PERMISSION_CLASSES': (
+          # Unauthenticated users can only read data.
+          'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+      ),
+  }
+  ```
+
+- Set up URLs for authentication; e.g.:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/ed_reviews/urls.py
+
+  urlpatterns = [
+      path('admin/', admin.site.urls),
+      path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+  ]
+  ```
+
+- Log in via `/api-auth/login/`.
+
+  - **NOTE:** You will be redirected to the default route of `/accounts/profile/`, which would require another URL pattern of its own.
