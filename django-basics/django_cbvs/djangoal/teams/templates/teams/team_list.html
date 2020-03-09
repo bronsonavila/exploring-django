@@ -15,12 +15,12 @@
 </div>
 
 {% if user.is_authenticated %}
-<hr>
+<!-- <hr>
 
 <form method="POST">
   {% csrf_token %}
   {{ form.as_p }}
   <input type="submit" class="btn btn-primary" value="Save">
-</form>
+</form> -->
 {% endif %}
 {% endblock %}

@@ -3145,3 +3145,68 @@
   {% endif %}
   {% endblock %}
   ```
+
+#### Mixins
+
+- [**Mixins**](https://docs.djangoproject.com/en/3.0/topics/class-based-views/mixins/) are small classes that add or augment a single feature on a larger class (in order to customize and modify a view).
+
+- Four major built-in mixins:
+  - [AccessMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/AccessMixin/)
+  - [LoginRequiredMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/LoginRequiredMixin/)
+  - [PermissionRequiredMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/PermissionRequiredMixin/)
+  - [UserPassesTestMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/UserPassesTestMixin/)
+
+- See additional mixins on [**Django Braces**](https://django-braces.readthedocs.io/en/latest/).
+
+- You can create your own mixins by adding a `mixins.py` file to your app directory. Example of a custom mixin for dynamically setting a page title:
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/mixins.py
+
+  class PageTitleMixin:
+      page_title = ''
+
+      # Allows page title to be set dynamically.
+      def get_page_title(self):
+          return self.page_title
+
+      def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+          context['page_title'] = self.get_page_title()
+          return context
+  ```
+
+  ```python
+  from django.contrib.auth.mixins import LoginRequiredMixin
+  from . import mixins
+
+  # `LoginRequiredMixin` comes first, because you want to ensure that the
+  # user is logged in before creating the view.
+  class TeamCreateView(LoginRequiredMixin, mixins.PageTitleMixin, CreateView):
+      model = models.Team
+      fields = ('name', 'practice_location', 'coach')
+      page_title = 'Create a new team'
+
+      # `get_initial` populates a form with starter data. Here, the form
+      # will begin with the logged-in user assigned as the coach.
+      def get_initial(self):
+          initial = super().get_initial()
+          initial['coach'] = self.request.user.pk
+          return initial
+
+
+  class TeamUpdateView(LoginRequiredMixin, mixins.PageTitleMixin, UpdateView):
+      model = models.Team
+      fields = ('name', 'practice_location', 'coach')
+
+      def get_page_title(self):
+          # `get_object()` gets the object currently being editted.
+          obj = self.get_object()
+          return 'Update {}'.format(obj.name)
+  ```
+
+  ```html
+  # ./django-basics/django_cbvs/djangoal/teams/templates/teams/team_form.html
+
+  <h1>{{ page_title }}</h1>
+  ```

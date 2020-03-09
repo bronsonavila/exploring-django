@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
@@ -5,6 +6,7 @@ from django.views.generic import (
     CreateView, UpdateView, DeleteView
 )
 
+from . import mixins
 from . import models
 
 
@@ -38,9 +40,12 @@ class TeamDetailView(DetailView, UpdateView):
     template_name = 'teams/team_detail.html'
 
 
-class TeamCreateView(CreateView):
+# `LoginRequiredMixin` comes first, because you want to ensure that the
+# user is logged in before creating the view.
+class TeamCreateView(LoginRequiredMixin, mixins.PageTitleMixin, CreateView):
     model = models.Team
     fields = ('name', 'practice_location', 'coach')
+    page_title = 'Create a new team'
 
     # `get_initial` populates a form with starter data. Here, the form
     # will begin with the logged-in user assigned as the coach.
@@ -50,12 +55,17 @@ class TeamCreateView(CreateView):
         return initial
 
 
-class TeamUpdateView(UpdateView):
+class TeamUpdateView(LoginRequiredMixin, mixins.PageTitleMixin, UpdateView):
     model = models.Team
     fields = ('name', 'practice_location', 'coach')
 
+    def get_page_title(self):
+        # `get_object()` gets the object currently being editted.
+        obj = self.get_object()
+        return 'Update {}'.format(obj.name)
 
-class TeamDeleteView(DeleteView):
+
+class TeamDeleteView(LoginRequiredMixin, DeleteView):
     model = models.Team
     # `reverse_lazy` is evaluated when the view is instantiated (as opposed to
     # `reverse`, which is evaluated when this file is read & parsed by Python).
