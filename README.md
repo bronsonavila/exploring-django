@@ -3332,3 +3332,52 @@
   ```
 
   - **NOTE:** The final output provided by `JSONRenderer()` is a [**bytes literal**](https://docs.python.org/3/library/stdtypes.html#bytes) that needs to be converted to a string before it can be used.
+
+#### GET Requests with APIView
+
+- [**APIView**](https://www.django-rest-framework.org/api-guide/views/) is a subclass of Django's `View` class. The main difference is that the requests that are passed to the handler methods in `APIView` will be DRF request objects, instead of Django's HTTP request objects. DRF request objects are an extension of Django's standard HTTP request, but with additional support for flexible request parsing and request authentication. By using the DRF request object, you can treat JSON data/requests the same way that you would deal with form data.
+
+- Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/views.py
+
+  from rest_framework.views import APIView
+  from rest_framework.response import Response
+
+  from . import models
+  from . import serializers
+
+
+  class ListCourse(APIView):
+      # `format` controls the format of the output.
+      def get(self, request, format=None):
+          courses = models.Course.objects.all()
+          # Use `many=True` when serializing multipe objects.
+          serializer = serializers.CourseSerializer(courses, many=True)
+          return Response(serializer.data)
+  ```
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/urls.py
+
+  from django.urls import path, include
+
+  from . import views
+
+  app_name = 'courses'
+
+  urlpatterns = [
+      path('', views.ListCourse.as_view(), name='course_list'),
+  ]
+  ```
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/ed_reviews/urls.py
+
+  urlpatterns = [
+      # ...
+      # Include API version number.
+      path('api/v1/courses/', include('courses.urls', namespace='courses')),
+  ]
+  ```
