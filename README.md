@@ -3427,3 +3427,49 @@
       path('', views.ListCreateCourse.as_view(), name='course_list'),
   ]
   ```
+
+### Make the REST Framework Work for You
+
+#### Generic CRUD
+
+- DRF includes [**generic views**](https://www.django-rest-framework.org/api-guide/generic-views/) that allow you to quickly build API views that map closely to your database models. Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/views.py
+
+  from rest_framework import generics
+
+  from . import models
+  from . import serializers
+
+
+  # Extends a generic API view rather than the standard `APIView`.
+  class ListCreateCourse(generics.ListCreateAPIView):
+      queryset = models.Course.objects.all()
+      # Specifies which serializer will be used on the queryset.
+      serializer_class = serializers.CourseSerializer
+
+
+  class RetrieveUpdateDestroyCourse(generics.RetrieveUpdateDestroyAPIView):
+      queryset = models.Course.objects.all()
+      serializer_class = serializers.CourseSerializer
+  ```
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/urls.py
+
+  from django.urls import path, include
+
+  from . import views
+
+  app_name = 'courses'
+
+  urlpatterns = [
+      path('', views.ListCreateCourse.as_view(), name='course_list'),
+      # `RetrieveUpdateDestroyAPIView` expects a query parameter called `pk`.
+      path('<pk>/', views.RetrieveUpdateDestroyCourse.as_view(), name='course_detail')
+  ]
+  ```
+
+  - **NOTE:** This method of making a List/Create view replaces that shown in "POSTing to an APIView" above. It provides for a more succinct way to create such views. The form for submitting a POST request to the database is also configured to use HTML inputs in addition to raw JSON.
+
