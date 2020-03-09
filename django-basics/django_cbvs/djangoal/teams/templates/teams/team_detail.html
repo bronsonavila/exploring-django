@@ -11,4 +11,11 @@
 	<li>{{ player.name }} - {{ player.get_position_display }}</li>
 {% endfor %}
 </ul>
+
+<hr>
+
+<p>
+	<a href="{% url 'teams:update' pk=team.pk %}" class="btn">Edit</a>
+	<a href="{% url 'teams:delete' pk=team.pk %}" class="btn">Delete</a>
+</p>
 {% endblock %}

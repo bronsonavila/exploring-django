@@ -1,0 +1,14 @@
+<!-- Used whenever a team is deleted. The name follows a Django convention
+     in which DeleteView confirmation templates use the lowercased model
+     name followed by `_confirm_delete`. -->
+{% extends "teams/_layout.html" %}
+
+{% block body_content %}
+<h1>Delete {{ team.name }}?</h1>
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="submit" class="btn btn-danger" value="Delete">
+  <a href="{% url 'teams:detail' pk=team.pk %}">Cancel</a>
+</form>
+{% endblock %}

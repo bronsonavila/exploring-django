@@ -2851,3 +2851,221 @@
       # Add the `make_published()` function to the "Action" dropdown menu.
       actions = [make_published]
   ```
+
+## Django Class-based Views
+
+### Classy Views
+
+#### What are Class-based Views?
+
+- Django's [**class-based views**](https://docs.djangoproject.com/en/3.0/topics/class-based-views/) allow you to structure your views and reuse code by harnessing inheritance and mixins. The generic views provided by Django can provide most of the functionality needed by a view.
+
+- See also: [**Classy Class-Based Views**](https://ccbv.co.uk/) for detailed descriptions about each of Django's class-based generic views.
+
+#### The View Class
+
+- The most basic class for creating views is [**View**](http://ccbv.co.uk/projects/Django/3.0/django.views.generic.base/View/). Example:
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/djangoal/views.py
+
+  from django.http import HttpResponse
+  from django.views.generic import View
+
+
+  class HelloWorldView(View):
+      # Each view based on the `View` class accepts the `get()` method.
+      def get(self, request):
+          return HttpResponse('Hello World')
+  ```
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/djangoal/urls.py
+
+  urlpatterns = [
+      path('admin/', admin.site.urls),
+      path('', views.home, name='home'),
+      path('teams/', include('teams.urls', namespace='teams')),
+      # The `HelloWorldView` must call the `as_view()` method because it is based
+      # on the `View` class. The `as_view()` method creates an instance of the
+      # class, configures the request object, and runs the class's dispatch
+      # method. The dispatch method runs the correct class method based on the
+      # incoming HTTP request (i.e., if the HTTP request is a `GET` request,
+      # then the dispatch method with call the class's `get()` method).
+      path('hello/', views.HelloWorldView.as_view(), name='hello')
+  ]
+  ```
+
+- **NOTE:** The `View` class is generally only useful when you need to control _everything_ about how a view is managed. However, for most cases, you will most likely use Django's generic views that are aimed at solving specific problems.
+
+#### Template View
+
+- The [**TemplateView**](https://docs.djangoproject.com/en/3.0/ref/class-based-views/base/#templateview) renders a given template, with the context containing parameters captured in the URL. Example:
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/djangoal/views.py
+
+  from django.views.generic import View, TemplateView
+
+  class HomeView(TemplateView):
+      template_name = 'home.html'
+
+      # Gets/generates context dictionary that's used for rendering template.
+      def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+          # Add hardcoded value that's accessible to the template.
+          context['games_today'] = 6
+          return context
+  ```
+
+  ```html
+  # ./django-basics/django_cbvs/djangoal/templates/home.html
+
+  <p>
+		There {{ games_today|pluralize:"is,are" }} {{ games_today }} game{{ games_today|pluralize }} today!
+	</p>
+  ```
+
+#### ListView and DetailView
+
+- Examples:
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/views.py
+
+  from django.views.generic import ListView, DetailView
+
+  class TeamListView(ListView):
+      model = models.Team
+      # By default, Django sets the context name of the list to be generated
+      # as both `object_list` and the lower-cased version of the model class's
+      # name followed by `_list` (in this case, `team_list`). However, it you
+      # want to change that name to something else, use `context_object_name`.
+      context_object_name = 'teams'
+
+
+  class TeamDetailView(DetailView):
+      model = models.Team
+  ```
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/urls.py
+
+  from django.urls import path
+
+  from . import views
+
+  app_name = 'teams'
+
+  urlpatterns = [
+      path('', views.TeamListView.as_view(), name='list'),
+      path('<int:pk>/', views.TeamDetailView.as_view(), name='detail'),
+  ]
+  ```
+
+#### CRUD View
+
+- Basic example of `CreateView`, `UpdateView`, and `DeleteView`:
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/models.py
+
+  from django.db import models
+  from django.urls import reverse
+
+
+  class Team(models.Model):
+      name = models.CharField(max_length=255)
+      coach = models.ForeignKey(
+          User,
+          related_name='teams',
+          on_delete=models.CASCADE,
+      )
+      practice_location = models.CharField(max_length=255)
+
+      def __str__(self):
+          return self.name
+
+      def get_absolute_url(self):
+          return reverse('teams:detail', kwargs={'pk': self.pk})
+  ```
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/views.py
+
+  from django.urls import reverse_lazy
+  from django.views.generic import (
+      ListView, DetailView,
+      CreateView, UpdateView, DeleteView
+  )
+
+
+  class TeamCreateView(CreateView):
+      model = models.Team
+      fields = ('name', 'practice_location', 'coach')
+
+
+  class TeamUpdateView(UpdateView):
+      model = models.Team
+      fields = ('name', 'practice_location', 'coach')
+
+
+  class TeamDeleteView(DeleteView):
+      model = models.Team
+      # `reverse_lazy` is evaluated when the view is instantiated (as opposed to
+      # `reverse`, which is evaluated when this file is read & parsed by Python).
+      # So it won't matter if the URL for the list view doesn't exist yet when
+      # the file is read.
+      success_url = reverse_lazy('teams:list')
+  ```
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/urls.py
+
+  urlpatterns = [
+      path('', views.TeamListView.as_view(), name='list'),
+      path('<int:pk>/', views.TeamDetailView.as_view(), name='detail'),
+      path('create/', views.TeamCreateView.as_view(), name='create'),
+      path('edit/<int:pk>/', views.TeamUpdateView.as_view(), name='update'),
+      path('delete/<int:pk>/', views.TeamDeleteView.as_view(), name='delete'),
+  ]
+  ```
+
+  ```html
+  # ./django-basics/django_cbvs/djangoal/teams/templates/teams/team_form.html
+
+  <!-- Used whenever a team is created or updated. The name follows a Django
+      convention in which CreateView/UpdateView templates use the lowercased
+      model name followed by `_form`. -->
+
+  {% extends "teams/_layout.html" %}
+
+  {% block body_content %}
+  <h1>{% if not form.instance.pk %}Create Team{% else %}Edit {{ form.instance.name }}{% endif %}</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Save">
+  </form>
+  {% endblock %}
+  ```
+
+  ```html
+  # ./django-basics/django_cbvs/djangoal/teams/templates/teams/team_confirm_delete.html
+
+  <!-- Used whenever a team is deleted. The name follows a Django convention
+      in which DeleteView confirmation templates use the lowercased model
+      name followed by `_confirm_delete`. -->
+  {% extends "teams/_layout.html" %}
+
+  {% block body_content %}
+  <h1>Delete {{ team.name }}?</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-danger" value="Delete">
+    <a href="{% url 'teams:detail' pk=team.pk %}">Cancel</a>
+  </form>
+  {% endblock %}
+  ```
