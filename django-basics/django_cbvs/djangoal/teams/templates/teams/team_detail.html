@@ -12,6 +12,16 @@
 {% endfor %}
 </ul>
 
+{% if user == team.coach %}
+<hr>
+
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" class="btn btn-primary" value="Save">
+</form>
+{% endif %}
+
 <hr>
 
 <p>

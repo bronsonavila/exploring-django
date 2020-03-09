@@ -17,18 +17,25 @@ def team_detail(request, pk):
     team = get_object_or_404(models.Team, pk=pk)
     return render(request, 'teams/team_detail.html', {'team': team})
 
-
-class TeamListView(ListView):
+# The order of arguments matters when combining views. In this case, you
+# want `CreateView` to come before `ListView`, because the `CreateView`
+# build process looks for an `object` attribute, but the `ListView` output
+# does not produce an `object` attribute.
+class TeamListView(CreateView, ListView):
     model = models.Team
     # By default, Django sets the context name of the list to be generated
     # as both `object_list` and the lower-cased version of the model class's
     # name followed by `_list` (in this case, `team_list`). However, it you
     # want to change that name to something else, use `context_object_name`.
     context_object_name = 'teams'
+    fields = ('name', 'practice_location', 'coach')
+    template_name = 'teams/team_list.html'
 
 
-class TeamDetailView(DetailView):
+class TeamDetailView(DetailView, UpdateView):
     model = models.Team
+    fields = ('name', 'practice_location', 'coach')
+    template_name = 'teams/team_detail.html'
 
 
 class TeamCreateView(CreateView):

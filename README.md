@@ -3104,3 +3104,44 @@
               return self.model.objects.filter(coach=self.request.user)
           return self.model.objects.all()
   ```
+
+#### Franken-Views
+
+- It is possible to combine multiple views (although it is likely better to use mixins, which are described below). Example of combining a Create form on a list view page:
+
+  ```python
+  # ./django-basics/django_cbvs/djangoal/teams/views.py
+
+  # The order of arguments matters when combining views. In this case, you
+  # want `CreateView` to come before `ListView`, because the `CreateView`
+  # build process looks for an `object` attribute, but the `ListView` output
+  # does not produce an `object` attribute.
+  class TeamListView(CreateView, ListView):
+      model = models.Team
+      context_object_name = 'teams'
+      fields = ('name', 'practice_location', 'coach')
+      template_name = 'teams/team_list.html'
+  ```
+
+  ```html
+  # ./django-basics/django_cbvs/djangoal/teams/templates/teams/team_list.html
+
+  {% block body_content %}
+  <h1 class="page-header">Dashboard</h1>
+  <div class="row placeholders">
+    {% for team in teams %}
+      {% team_avatar team %}
+    {% endfor %}
+  </div>
+
+  {% if user.is_authenticated %}
+  <hr>
+
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="btn btn-primary" value="Save">
+  </form>
+  {% endif %}
+  {% endblock %}
+  ```
