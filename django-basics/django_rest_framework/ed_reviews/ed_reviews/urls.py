@@ -16,9 +16,20 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 
+from rest_framework import routers
+
+from courses import views
+
+router = routers.SimpleRouter()
+# Register viewsets with the router, and assign a prefix.
+router.register(r'courses', views.CourseViewSet)
+router.register(r'reviews', views.ReviewViewSet)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # Include API version number.
     path('api/v1/courses/', include('courses.urls', namespace='courses')),
+    # Create URLs automatically for each viewset registered with the router.
+    path('api/v2/', include((router.urls, 'ed_reviews'), namespace='apiv2')),
 ]
