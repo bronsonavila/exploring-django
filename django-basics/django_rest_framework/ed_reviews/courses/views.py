@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework import mixins
+from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -61,7 +62,24 @@ class RetrieveUpdateDestroyReview(generics.RetrieveUpdateDestroyAPIView):
 
 # v2 API
 
+# Only allow superusers to delete objects. All other users can peform
+# any other request.
+class SuperUserCanDelete(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method != 'DELETE' or request.user.is_superuser:
+            return True
+        return False
+
+
 class CourseViewSet(viewsets.ModelViewSet):
+    # This will override the default permissions in `settings.py`.
+    # The permission checks will run in the order they are listed.
+    # Here, a non-superuser will not be able to delete a course,
+    # even if they have that ability via Django permissions.
+    permission_classes = (
+        SuperUserCanDelete,
+        permissions.DjangoModelPermissions
+    )
     queryset = models.Course.objects.all()
     serializer_class = serializers.CourseSerializer
 
@@ -101,6 +119,8 @@ they cannot retrieve a list of all reviews (e.g., `/api/v2/reviews/).
 Attempting to go to the latter will yield: "Method 'GET' not allowed."
 """
 # Mixins must be evaluated before the class they are modifying.
+
+
 class ReviewViewSet(mixins.CreateModelMixin,
                     mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,

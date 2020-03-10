@@ -3753,3 +3753,32 @@
   - **NOTE:** Tokens can be viewed in `/admin/authtoken/token`.
 
 - The token generated above can now be used to submit POST requests that require authentication. The request's `Headers` must include a key of `Authorization` which has a value of `Token b1cfa1c350e39202b68b87db80c2290d50ad932e` (note the space between "Token" and the key).
+
+#### Permissions
+
+- [**Permissions**](https://www.django-rest-framework.org/api-guide/permissions/) decide whether a request should be granted or denied access. In addition to setting the `DEFAULT_PERMISSION_CLASSES` globally via `settings.py`, you can use permissions to protect a single, specific view. Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/views.py
+
+  # Only allow superusers to delete objects. All other users can peform
+  # any other request.
+  class SuperUserCanDelete(permissions.BasePermission):
+      def has_permission(self, request, view):
+          if request.method != 'DELETE' or request.user.is_superuser:
+              return True
+          return False
+
+
+  class CourseViewSet(viewsets.ModelViewSet):
+      # This will override the default permissions in `settings.py`.
+      # The permission checks will run in the order they are listed.
+      # Here, a non-superuser will not be able to delete a course,
+      # even if they have that ability via Django permissions.
+      permission_classes = (
+          SuperUserCanDelete,
+          permissions.DjangoModelPermissions
+      )
+  ```
+
+- Also see [**Django Guardian**](https://django-guardian.readthedocs.io/en/stable/overview.html), which is an implementation of object permissions for Django and provides an extra authentication backend.
