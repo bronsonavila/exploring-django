@@ -3782,3 +3782,28 @@
   ```
 
 - Also see [**Django Guardian**](https://django-guardian.readthedocs.io/en/stable/overview.html), which is an implementation of object permissions for Django and provides an extra authentication backend.
+
+#### Enhancing Your Calm with Throttling
+
+- [**Throttling**](https://www.django-rest-framework.org/api-guide/throttling/) controls the rate of requests that a client can make to an API.
+
+- You can set global throttling rules via the `REST_FRAMEWORK` dictionary in `settings.py`, e.g.:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/ed_reviews/settings.py
+
+  REST_FRAMEWORK = {
+      # ...
+      'DEFAULT_THROTTLE_CLASSES': (
+          'rest_framework.throttling.AnonRateThrottle', # Non-authenticated users.
+          'rest_framework.throttling.UserRateThrottle', # Authenticated users.
+      ),
+      'DEFAULT_THROTTLE_RATES': {
+          'anon': '500/day',
+          'user': '100/hour',
+      }
+  }
+  ```
+
+- DRF tracks the requests made in a given time limit via Django's cache backend settings. Django defaults to the local memory cache backend (which is primarily meant for local development and is not very efficient). Django provides other cache backend choices, and there are other third-party packages that can extend your options. In production, you may likely use the [**Memcached**](https://docs.djangoproject.com/en/3.0/topics/cache/#memcached) backend.
+

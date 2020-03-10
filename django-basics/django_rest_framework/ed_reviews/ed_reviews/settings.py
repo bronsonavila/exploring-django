@@ -136,4 +136,12 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle', # Non-authenticated users
+        'rest_framework.throttling.UserRateThrottle', # Authenticated users
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '500/day',
+        'user': '100/hour',
+    }
 }
