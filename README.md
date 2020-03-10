@@ -3589,3 +3589,43 @@
       path('api/v2/', include((router.urls, 'ed_reviews'), namespace='apiv2')),
   ]
   ```
+
+#### Customizing Viewsets
+
+- You can customize viewsets to control exactly which HTTP methods your viewsets will respond to. Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/views.py
+
+  from rest_framework import mixins
+
+  # ...
+
+  """
+  `ModelViewSet` essentially inherits from each of the following:
+      - `mixins.CreateModelMixin`
+      - `mixins.RetrieveModelMixin`
+      - `mixins.UpdateModelMixin`
+      - `mixins.DestroyModelMixin`
+      - `mixins.ListModelMixin`
+      - `viewsets.GenericViewSet`
+
+  So if you want to customize a viewset that will not display a list view,
+  then simply create a new model that inherits from `GenericViewSet` and
+  all of the mixins execpt for `ListModelMixin`. The end result is that users
+  can retrieve individual reviews (e.g., `/api/v2/courses/1/reviews/2/`), but
+  they cannot retrieve a list of all reviews (e.g., `/api/v2/reviews/).
+  Attempting to go to the latter will yield: "Method 'GET' not allowed."
+  """
+  # Mixins must be evaluated before the class they are modifying.
+  class ReviewViewSet(mixins.CreateModelMixin,
+                      mixins.RetrieveModelMixin,
+                      mixins.UpdateModelMixin,
+                      mixins.DestroyModelMixin,
+                      viewsets.GenericViewSet):
+      queryset = models.Review.objects.all()
+      serializer_class = serializers.ReviewSerializer
+  ```
+
+- **NOTE:** It is also possible to create [**function-based views**](https://www.django-rest-framework.org/api-guide/views/#function-based-views) rather than class-based views, if desired.
+

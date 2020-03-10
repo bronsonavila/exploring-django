@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
+from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -75,6 +76,27 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
+"""
+`ModelViewSet` essentially consists of the following definitions:
+    - `mixins.CreateModelMixin`
+    - `mixins.RetrieveModelMixin`
+    - `mixins.UpdateModelMixin`
+    - `mixins.DestroyModelMixin`
+    - `mixins.ListModelMixin`
+    - `viewsets.GenericViewSet`
+
+So if you want to customize a viewset that will not display a list view,
+then simply create a new model that inherits from `GenericViewSet` and
+all of the mixins execpt for `ListModelMixin`. The end result is that users
+can retrieve individual reviews (e.g., `/api/v2/courses/1/reviews/2/`), but
+they cannot retrieve a list of all reviews (e.g., `/api/v2/reviews/).
+Attempting to go to the latter will yield: "Method 'GET' not allowed."
+"""
+# Mixins must be evaluated before the class they are modifying.
+class ReviewViewSet(mixins.CreateModelMixin,
+                    mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    viewsets.GenericViewSet):
     queryset = models.Review.objects.all()
     serializer_class = serializers.ReviewSerializer
