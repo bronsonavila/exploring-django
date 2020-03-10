@@ -3673,3 +3673,47 @@
               'reviews',
           )
   ```
+
+#### Pagination
+
+- Use [**pagination**](https://www.django-rest-framework.org/api-guide/pagination/) to prevent situations in which thousands of related objects are included in a single API request.
+
+- Set up the default pagination in the `REST_FRAMEWORK` dictionary in your project's `settings.py` file:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/ed_reviews/settings.py
+
+  REST_FRAMEWORK = {
+      # ...
+      'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+      'PAGE_SIZE': 5,
+  }
+  ```
+
+- **IMPORTANT:** The default pagination will be applied to all generic views, but it will not automatically work on your ad hoc views (i.e., those using the `@action` decorator). You will need to make your own calls to the paginator to handle the latter. Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/views.py
+
+  class CourseViewSet(viewsets.ModelViewSet):
+      queryset = models.Course.objects.all()
+      serializer_class = serializers.CourseSerializer
+
+      # This viewset method only applies to the detail view (rather than
+      # the list view), and it will only work for GET requests.
+      @action(detail=True, methods=['get'])
+      def reviews(self, request, pk=None):
+          # Calls the `pagination_class` set in `settings.py` with the
+          # specified page size.
+          self.pagination_class.page_size = 1
+          reviews = models.Review.objects.filter(course_id=pk)
+
+          page = self.paginate_queryset(reviews)
+
+          if page is not None:
+              serializer = serializers.ReviewSerializer(page, many=True)
+              return self.get_paginated_response(serializer.data)
+
+          serializer = serializers.ReviewSerializer(reviews, many=True)
+          return Response(serializer.data)
+  ```

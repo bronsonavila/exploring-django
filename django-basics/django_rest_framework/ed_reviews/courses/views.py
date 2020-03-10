@@ -69,10 +69,18 @@ class CourseViewSet(viewsets.ModelViewSet):
     # the list view), and it will only work for GET requests.
     @action(detail=True, methods=['get'])
     def reviews(self, request, pk=None):
-        course = self.get_object()
-        serializer = serializers.ReviewSerializer(
-            course.reviews.all(), many=True
-        )
+        # Calls the `pagination_class` set in `settings.py` with the
+        # specified page size.
+        self.pagination_class.page_size = 1
+        reviews = models.Review.objects.filter(course_id=pk)
+
+        page = self.paginate_queryset(reviews)
+
+        if page is not None:
+            serializer = serializers.ReviewSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializers.ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
 
 
