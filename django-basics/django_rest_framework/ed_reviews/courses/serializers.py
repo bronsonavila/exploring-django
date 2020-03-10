@@ -23,10 +23,38 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    """
+    Automatically include any reviews related to a course instance.
+    NOTE: This will bring in EVERY review related to the course, so
+    this method is best when only working with limited amounts of data
+    (ideally situations where there's just a one-to-one relationship).
+    """
+    # reviews = ReviewSerializer(many=True, read_only=True)
+
+    """
+    Alternative to the above, in which you only fetch the hyperlink(s)
+    of related field(s), rather than all the data from the related object.
+    `review-detail` is the automatically-generated view name for the
+    viewset in the API v2 router. NOTE: This will still return ALL items.
+    See: https://www.django-rest-framework.org/api-guide/routers/#simplerouter
+    """
+    # reviews = serializers.HyperlinkedRelatedField(many=True,
+    #                                               read_only=True,
+    #                                               view_name='apiv2:review-detail')
+
+    """
+    Another option in which you only fetch the primary key(s) of related
+    field(s). This is generally the fastest option.
+    """
+    reviews = serializers.PrimaryKeyRelatedField(many=True,
+                                                 read_only=True)
+
     class Meta:
         model = models.Course
         fields = (
             'id',
             'title',
             'url',
+            # Should correspond to the `related_name` in `models.py`:
+            'reviews',
         )
