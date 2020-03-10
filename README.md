@@ -3717,3 +3717,39 @@
           serializer = serializers.ReviewSerializer(reviews, many=True)
           return Response(serializer.data)
   ```
+
+### Security and Customization
+
+#### Token Authentication
+
+- Token-based [**authentication**](https://www.django-rest-framework.org/api-guide/authentication/) takes advantage of a simple HTTP authentication method. Instead of making a user log in and keep a [**session**](https://docs.djangoproject.com/en/3.0/topics/http/sessions/#module-django.contrib.sessions) around (which will not be an option available on non-browser mobile applications), a user is assigned a token which is usually a randomly-generated string that the user provides to the server to prove their identity. Tokens
+
+- To begin using tokens:
+  1. Add `'rest_framework.authtoken'` to `INSTALLED_APPS` in your `settings.py` file, and
+  2. Change the `REST_FRAMEWORK.DEFAULT_AUTHENTICATION_CLASSES` to use `TokenAuthentication`.
+
+- Example of how to manually generate a token in the Python shell (normally you would set something up to automatically generate a token whenever a user signs up):
+
+  ```
+  (InteractiveConsole)
+
+  >>> from rest_framework.authtoken.models import Token
+
+  >>> from django.contrib.auth.models import User
+
+  >>> user = User.objects.get(id=1)
+
+  >>> user
+
+  <User: kennethlove>
+
+  >>> token = Token.objects.create(user=user)
+
+  >>> token.key
+
+  'b1cfa1c350e39202b68b87db80c2290d50ad932e'
+  ```
+
+  - **NOTE:** Tokens can be viewed in `/admin/authtoken/token`.
+
+- The token generated above can now be used to submit POST requests that require authentication. The request's `Headers` must include a key of `Authorization` which has a value of `Token b1cfa1c350e39202b68b87db80c2290d50ad932e` (note the space between "Token" and the key).
