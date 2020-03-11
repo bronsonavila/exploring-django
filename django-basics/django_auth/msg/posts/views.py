@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.http import Http404
@@ -46,7 +47,7 @@ class SinglePost(SelectRelatedMixin, generic.DetailView):
         )
 
 
-class CreatePost(generic.CreateView):
+class CreatePost(LoginRequiredMixin, generic.CreateView):
     form_class = forms.PostForm
     model = models.Post
 
@@ -61,8 +62,10 @@ class CreatePost(generic.CreateView):
         self.object.save()
         return super().form_valid(form)
 
-
-class DeletePost(SelectRelatedMixin, generic.DeleteView):
+# `SelectedRelatedMixin` is from `django-braces`. It lets you perform
+# "select related" queries without having to change the queryset yourself.
+# You just need to use the `select_related` attribute.
+class DeletePost(LoginRequiredMixin, SelectRelatedMixin, generic.DeleteView):
     model = models.Post
     select_related = ("user", "community")
     success_url = reverse_lazy("posts:all")

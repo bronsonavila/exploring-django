@@ -19,7 +19,7 @@ password: testpassword
 - [ ] Ability to sign up
 - [ ] Ability to log in
 - [ ] Ability to log out
-- [ ] Only able to post messages when logged in
+- [x] Only able to post messages when logged in
 - [x] Able to delete own messages
 - [ ] Able to delete community messages if community admin
 - [ ] Able to delete community messages if community moderator

@@ -3886,3 +3886,32 @@
           # Ensure you're always dealing 0.5 increments (e.g., 1.0, 2.5, etc.).
           return round(average * 2) / 2
   ```
+
+## Django Authentication
+
+### Authentication
+
+#### Requiring Logins
+
+- Django provides the [**LoginRequiredMixin**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.mixins.LoginRequiredMixin) for generic views that requires a user to be logged in to gain access to the view. According to the teacher: "Django provides decorators for marking a view as requiring a login, but decorators are 'iffy' with class-based views. So Django also provides mixins to use with your class-based views."
+
+- Example:
+
+  ```python
+  # ./django-basics/django_auth/msg/posts/views.py
+
+  from django.contrib.auth.mixins import LoginRequiredMixin
+  from braces.views import SelectRelatedMixin
+
+  # ...
+
+  # `SelectedRelatedMixin` is from `django-braces`. It lets you perform
+  # "select related" queries without having to change the queryset yourself.
+  # You just need to use the `select_related` attribute.
+  class DeletePost(LoginRequiredMixin, SelectRelatedMixin, generic.DeleteView):
+      model = models.Post
+      select_related = ("user", "community")
+      success_url = reverse_lazy("posts:all")
+
+      # ...
+  ```

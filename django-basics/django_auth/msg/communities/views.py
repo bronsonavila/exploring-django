@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
@@ -9,7 +10,7 @@ from braces.views import PrefetchRelatedMixin
 from . import models
 
 
-class CreateCommunity(generic.CreateView):
+class CreateCommunity(LoginRequiredMixin, generic.CreateView):
     fields = ("name", "description")
     model = models.Community
 
@@ -32,7 +33,7 @@ class AllCommunities(generic.ListView):
     model = models.Community
 
 
-class JoinCommunity(generic.RedirectView):
+class JoinCommunity(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         return reverse("communities:single",
                        kwargs={"slug": self.kwargs.get("slug")})
@@ -62,7 +63,7 @@ class JoinCommunity(generic.RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class LeaveCommunity(generic.RedirectView):
+class LeaveCommunity(LoginRequiredMixin, generic.RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         return reverse("communities:single",
                        kwargs={"slug": self.kwargs.get("slug")})
