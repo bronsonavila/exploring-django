@@ -3807,3 +3807,37 @@
 
 - DRF tracks the requests made in a given time limit via Django's cache backend settings. Django defaults to the local memory cache backend (which is primarily meant for local development and is not very efficient). Django provides other cache backend choices, and there are other third-party packages that can extend your options. In production, you may likely use the [**Memcached**](https://docs.djangoproject.com/en/3.0/topics/cache/#memcached) backend.
 
+#### Customizing Validation
+
+- Example of a custom serializer validation:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/serializers.py
+
+  class ReviewSerializer(serializers.ModelSerializer):
+      class Meta:
+          model = models.Review
+          fields = (
+              'id',
+              'course',
+              'name',
+              'email',
+              'comment',
+              'rating',
+              'created_at',
+          )
+          extra_kwargs = {
+              'email': {'write_only': True}
+          }
+
+      # Just as with field-level validations for forms (e.g., `clean_field`),
+      # custom serializer validation methods must be `validate_field`.
+      def validate_rating(self, value):
+          if value in range(1, 6):
+              return value
+          raise serializers.ValidationError(
+              'Rating must be an integer between 1 and 5'
+          )
+  ```
+
+- It is also possible to perform object-level validation across multiple fields, and for validators to be included on individual fields on a serializer. See the examples in the [official documentation](https://www.django-rest-framework.org/api-guide/serializers/#validation).
