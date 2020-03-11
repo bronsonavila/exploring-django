@@ -3841,3 +3841,48 @@
   ```
 
 - It is also possible to perform object-level validation across multiple fields, and for validators to be included on individual fields on a serializer. See the examples in the [official documentation](https://www.django-rest-framework.org/api-guide/serializers/#validation).
+
+#### Customizing Serialization
+
+- You can add custom data to your serializer output by using the [**SerializerMethodField**](https://www.django-rest-framework.org/api-guide/fields/#serializermethodfield). Example:
+
+  ```python
+  # ./django-basics/django_rest_framework/ed_reviews/courses/serializers.py
+
+  from django.db.models import Avg
+
+  # ...
+
+  class CourseSerializer(serializers.ModelSerializer):
+      reviews = serializers.PrimaryKeyRelatedField(
+          many=True,
+          read_only=True,
+      )
+      average_rating = serializers.SerializerMethodField()
+
+      class Meta:
+          model = models.Course
+          fields = (
+              'id',
+              'title',
+              'url',
+              'reviews',
+              'average_rating',
+          )
+
+      # When working with `SerializerMethodField` to add custom data to the
+      # serialized output, the method needs to follow a `get_field` pattern.
+      # `obj` is the object that is being serialized.
+      def get_average_rating(self, obj):
+          # NOTE: This is probably not the best way to get average ratings,
+          # as it will be taxing on your query time as the database continues
+          # to grow. It would be best to add an `average_rating` field to the
+          # model itself and store a value that is calculated and updated
+          # each time a review is submitted using Django's `signals`.
+          average = obj.reviews.aggregate(Avg('rating')).get('rating__avg')
+
+          if average is None:
+              return 0
+          # Ensure you're always dealing 0.5 increments (e.g., 1.0, 2.5, etc.).
+          return round(average * 2) / 2
+  ```

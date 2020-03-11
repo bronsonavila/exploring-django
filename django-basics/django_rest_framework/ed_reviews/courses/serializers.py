@@ -1,3 +1,5 @@
+from django.db.models import Avg
+
 from rest_framework import serializers
 
 from . import models
@@ -55,8 +57,11 @@ class CourseSerializer(serializers.ModelSerializer):
     Another option in which you only fetch the primary key(s) of related
     field(s). This is generally the fastest option.
     """
-    reviews = serializers.PrimaryKeyRelatedField(many=True,
-                                                 read_only=True)
+    reviews = serializers.PrimaryKeyRelatedField(
+        many=True,
+        read_only=True,
+    )
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Course
@@ -66,4 +71,22 @@ class CourseSerializer(serializers.ModelSerializer):
             'url',
             # Should correspond to the `related_name` in `models.py`:
             'reviews',
+            'average_rating',
         )
+
+    # When working with `SerializerMethodField` to add custom data to the
+    # serialized output, the method needs to follow a `get_field` pattern.
+    # `obj` is the object that is being serialized.
+    def get_average_rating(self, obj):
+        # NOTE: This is probably not the best way to get average ratings,
+        # as it will be taxing on your query time as the database continues
+        # to grow. It would be best to add an `average_rating` field to the
+        # model itself and store a value that is calculated and updated
+        # each time a review is submitted using Django's `signals`.
+        average = obj.reviews.aggregate(Avg('rating')).get('rating__avg')
+
+        if average is None:
+            return 0
+        # Ensure you're always dealing 0.5 increments (e.g., 1.0, 2.5, etc.).
+        return round(average * 2) / 2
+
