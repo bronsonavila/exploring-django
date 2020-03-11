@@ -1,0 +1,22 @@
+{% extends "communities/layout.html" %}
+{% load community_tags %}
+
+{% block pre_community_content %}
+<div class="col-md-4">
+	<div class="card card-with-shadow">
+		<div class="content">
+			<h5 class="title">{{ community.name }}</h5>
+			{{ community.description_html|safe }}
+			{% community_buttons community %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block community_content %}
+<div class="col-md-8">
+	{% for post in community.posts.all %}
+		{% include "posts/_post.html" %}
+	{% endfor %}
+</div>
+{% endblock %}
