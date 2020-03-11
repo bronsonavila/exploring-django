@@ -25,7 +25,10 @@ SECRET_KEY = '(r2)&rt_7aog^msk683c4wg_ce&7!5+7g41)%^nr0wxg67dbo%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '0.0.0.0',
+    'localhost',
+]
 
 
 # Application definition
@@ -44,13 +47,13 @@ INSTALLED_APPS = [
     'posts',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -125,3 +128,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
+
+# Set internal IPs for Django Debug Toolbar.
+INTERNAL_IPS = ['127.0.0.1', '::1', '0.0.0.0'] # '::1' for IPv6
+
+DEBUG_TOOLBAR_PATCH_SETTINGS = False

@@ -17,7 +17,7 @@ def get_user_communities(context):
 
 @register.simple_tag(takes_context=True)
 def get_other_communities(context):
-    if context["user"].is_authenticated():
+    if context["user"].is_authenticated:
         return models.Community.objects.exclude(
             pk__in=context["user"].communities.select_related(
                 "community").values_list("community")
