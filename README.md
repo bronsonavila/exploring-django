@@ -4047,3 +4047,105 @@
   </div>
   {% endblock %}
   ```
+
+#### LogoutView and SignUpView
+
+- Django's authentication views include a [**LogoutView**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.views.LogoutView), which renders as an admin "Logged out" template by default when a request is made to `accounts/logout/`. You can change this behavior to redirect to another view instead (e.g., the home page). Example:
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/views.py
+
+  from django.contrib.auth import login, logout
+
+  # ...
+
+  class LogoutView(generic.RedirectView):
+      # `RedirectView` requires a `url` attribute indicating the
+      # URL that will be used for the redirect.
+      url = reverse_lazy('home')
+
+      def get(self, request, *args, **kwargs):
+          logout(request)
+          # Ensure the normal return proceeds after the log out.
+          return super().get(request, *args, **kwargs)
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/urls.py
+
+  # ...
+
+  urlpatterns = [
+      path('logout/', views.LogoutView.as_view(), name='logout')
+  ]
+  ```
+
+- Creating a **Sign Up** view is often very customized to each site, so Django does not include a ready-made view for registering new users. You can use the [**UserCreationForm**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.forms.UserCreationForm) as one option for creating a new user. Example:
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/forms.py
+
+  from django.contrib.auth.forms import UserCreationForm
+  from django.contrib.auth.models import User
+
+
+  class UserCreateForm(UserCreationForm):
+      class Meta:
+          fields = (
+              'username',
+              'email',
+              'password1',
+              'password2',
+          )
+          model = User
+
+      # Override the default form labels.
+      def __init__(self, *args, **kwargs):
+          super().__init__(*args, **kwargs)
+          self.fields['username'].label = 'Display name'
+          # NOTE: The `email` field of Django's `User` model is optional.
+          # If you need it to be required, this class will need
+          # to be customized further.
+          # Google: django usercreationform email
+          self.fields['email'].label = 'Email address'
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/views.py
+
+  from . import forms
+
+  # ...
+
+  class SignUpView(generic.CreateView):
+      form_class = forms.UserCreateForm
+      success_url = reverse_lazy('login')
+      template_name = 'accounts/signup.html'
+  ```
+
+  ```html
+  # ./django-basics/django_auth/msg/accounts/templates/accounts/signup.html
+
+  {% extends "layout.html" %}
+  {% load bootstrap3 %}
+
+  {% block title_tag %}Sign Up | {{ block.super }}{% endblock %}
+
+  {% block body_content %}
+  <div class="container">
+    <h1>Sign Up</h1>
+    <form method="POST">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <input class="btn btn-default" type="submit" value="Sign Up">
+    </form>
+  </div>
+  {% endblock %}
+
+  ```
+
+  - **NOTE:** You can enhance your user registration process with the [**django-registration**](https://django-registration.readthedocs.io/en/3.1/) package, which allows for user validation on sign up (i.e., the user must click a link that is sent to their email address in order to complete the registration process).
+
+  - **ALSO:** Consider using [**django-allauth**](https://readthedocs.org/projects/django-allauth/) as an option for allowing third-party (social) account authentication.
+
+- To automatically log a user in after completing the sign up process, consider the steps taken in [this thread](https://teamtreehouse.com/community/django-authentication-signupview-challenge-task-2-of-2-not-sure-if-i-am-on-the-right-path).
