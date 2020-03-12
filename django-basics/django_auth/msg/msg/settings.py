@@ -134,6 +134,11 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
 # `accounts/profile/`. Use this variable to change the redirect URL.
 LOGIN_REDIRECT_URL = 'posts:all'
 
+# Use the file-based email backend in development to simulate
+# an email being sent.
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
 # Set internal IPs for Django Debug Toolbar.
 INTERNAL_IPS = ['127.0.0.1', '::1', '0.0.0.0'] # '::1' for IPv6
 

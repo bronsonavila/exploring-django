@@ -4144,8 +4144,27 @@
 
   ```
 
-  - **NOTE:** You can enhance your user registration process with the [**django-registration**](https://django-registration.readthedocs.io/en/3.1/) package, which allows for user validation on sign up (i.e., the user must click a link that is sent to their email address in order to complete the registration process).
+- You can enhance your user registration process with the [**django-registration**](https://django-registration.readthedocs.io/en/3.1/) package, which allows for user validation on sign up (i.e., the user must click a link that is sent to their email address in order to complete the registration process).
 
-  - **ALSO:** Consider using [**django-allauth**](https://readthedocs.org/projects/django-allauth/) as an option for allowing third-party (social) account authentication.
+- Consider using [**django-allauth**](https://readthedocs.org/projects/django-allauth/) as an option for allowing third-party (social) account authentication.
 
 - To automatically log a user in after completing the sign up process, consider the steps taken in [this thread](https://teamtreehouse.com/community/django-authentication-signupview-challenge-task-2-of-2-not-sure-if-i-am-on-the-right-path).
+
+#### Resetting Passwords
+
+- Django's default password reset process sends a link to the email address of a registered user. Once the user clicks that link, they will be presented with a form to enter a new password. While in development, you may use the [**file backend**](https://docs.djangoproject.com/en/3.0/topics/email/#email-backends) to write emails to a file rather than actually sending a real email:
+
+  ```python
+  # ./django-basics/django_auth/msg/msg/settings.py
+
+  # Use the file-based email backend in development to simulate
+  # an email being sent.
+  EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+  EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+  ```
+
+- All of the registration templates use the admin template by default. However, the following templates can be customized by creating their respective HTML files under `${PROJECT}/templates/registration/`:
+  - Initiate the reset process: `password_reset_form.html`
+  - "Password reset sent" template: `password_reset_done.html`
+  - Password reset form: `password_reset_confirm.html`
+  - "Password reset complete" template: `password_reset_complete.html`
