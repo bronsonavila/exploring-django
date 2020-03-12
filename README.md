@@ -3915,3 +3915,135 @@
 
       # ...
   ```
+
+#### LoginView
+
+- One method of using [**LoginView**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.views.LoginView) to authenticate and log in users via a form located on `/accounts/login/`:
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/views.py
+
+  from django.contrib.auth import login
+  from django.contrib.auth.forms import AuthenticationForm
+  from django.urls import reverse_lazy
+  from django.views import generic
+
+
+  class LoginView(generic.FormView):
+      # Ensure the user is authenticated before attemping a log in.
+      form_class = AuthenticationForm
+      # Redirect when the form view is complete.
+      success_url = reverse_lazy('posts:all')
+      template_name = 'accounts/login.html'
+
+      def get_form(self, form_class=None):
+          if form_class is None:
+              form_class = self.get_form_class()
+          # The default `form_class` just takes the second argument,
+          # but the first argument in an `AuthenticationForm` must
+          # be the request.
+          return form_class(self.request, **self.get_form_kwargs())
+
+      # Only login if the `AuthenticationForm` is valid.
+      def form_valid(self, form):
+          # `self.request` is used in creating the session and validating
+          # that a request is coming from the user. The `form.get_user()`
+          # method is a method provided by the `AuthenticationForm` which
+          # returns the authenticated user object.
+          login(self.request, form.get_user())
+          return super().form_valid(form)
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/msg/urls.py
+
+  # ...
+
+  urlpatterns = [
+      # ...
+      path('accounts/', include('accounts.urls', namespace='accounts')),
+      # ...
+  ]
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/urls.py
+
+  # ...
+
+  urlpatterns = [
+      path('login/', views.LoginView.as_view(), name='login')
+  ]
+  ```
+
+  ```html
+  # ./django-basics/django_auth/msg/accounts/templates/accounts/login.html
+
+  {% extends "layout.html" %}
+  {% load bootstrap3 %}
+
+  {% block title_tag %}Login | {{ block.super }}{% endblock %}
+
+  {% block body_content %}
+  <div class="container">
+    <h1>Login</h1>
+    <form method="POST">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <input class="btn btn-default" type="submit" value="Login">
+    </form>
+  </div>
+  {% endblock %}
+  ```
+
+- **HOWEVER:** There is a simpler way to perform the same login by relying upon `django.contrib.auth.urls` rather than `LoginView`:
+
+  ```python
+  # ./django-basics/django_auth/msg/msg/urls.py
+
+  urlpatterns = [
+      # ...
+      # This first `accounts/` path should only contain URLs that
+      # go beyond those provided by `django.contrib.auth.urls`. This
+      # means `account.urls` should not contain a `login/` path, because
+      # `django.contrib.auth.urls` already contains such a path.
+      path('accounts/', include('accounts.urls', namespace='accounts')),
+      # This path will only be executed if there are no matches
+      # for any URLs in the `accounts` path above.
+      path('accounts/', include('django.contrib.auth.urls')),
+      # ...
+  ]
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/msg/settings.py
+
+  #...
+
+  # By default, login forms using `django.contrib.auth.urls` redirect to
+  # `accounts/profile/`. Use this variable to change the redirect URL.
+  LOGIN_REDIRECT_URL = 'posts:all'
+  ```
+
+  ```html
+  # ./django-basics/django_auth/msg/templates/registration/login.html
+
+  <!-- This specific `registration/login.html` template on the project level must be used
+    for the login form if you are using `django.contrib.auth.urls` to handle log ins. -->
+
+  {% extends "layout.html" %}
+  {% load bootstrap3 %}
+
+  {% block title_tag %}Login | {{ block.super }}{% endblock %}
+
+  {% block body_content %}
+  <div class="container">
+    <h1>Login</h1>
+    <form method="POST">
+      {% csrf_token %}
+      {% bootstrap_form form %}
+      <input class="btn btn-default" type="submit" value="Login">
+    </form>
+  </div>
+  {% endblock %}
+  ```

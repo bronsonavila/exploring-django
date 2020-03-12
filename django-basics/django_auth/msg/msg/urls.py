@@ -15,20 +15,27 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from django.urls import re_path, include
+from django.urls import include, path
 
 from . import views
 
 urlpatterns = [
-    re_path(r"^$", views.Home.as_view(), name="home"),
-    re_path(r"^admin/", admin.site.urls),
-    re_path(r"^posts/", include("posts.urls", namespace="posts")),
-    re_path(r"^communities/",
-        include("communities.urls", namespace="communities")),
+    path('', views.Home.as_view(), name="home"),
+    path('admin/', admin.site.urls),
+    # This first `accounts/` path should only contain URLs that
+    # go beyond those provided by `django.contrib.auth.urls`. This
+    # means `account.urls` should not contain a `login/` path, because
+    # `django.contrib.auth.urls` already contains such a path.
+    path('accounts/', include('accounts.urls', namespace='accounts')),
+    # This path will only be executed if there are no matches
+    # for any URLs in the `accounts` path above.
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('posts/', include("posts.urls", namespace="posts")),
+    path('communities/', include("communities.urls", namespace="communities")),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
-        re_path(r'^__debug__/', include(debug_toolbar.urls)),
+        path('__debug__/', include(debug_toolbar.urls)),
     ]

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'debug_toolbar',
     'bootstrap3',
+    'accounts',
     'communities',
     'posts',
 ]
@@ -128,6 +129,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
+
+# By default, login forms using `django.contrib.auth.urls` redirect to
+# `accounts/profile/`. Use this variable to change the redirect URL.
+LOGIN_REDIRECT_URL = 'posts:all'
 
 # Set internal IPs for Django Debug Toolbar.
 INTERNAL_IPS = ['127.0.0.1', '::1', '0.0.0.0'] # '::1' for IPv6
