@@ -139,6 +139,9 @@ LOGIN_REDIRECT_URL = 'posts:all'
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
+# Specify which model to use as the "active" user model for this project.
+AUTH_USER_MODEL = 'accounts.User'
+
 # Set internal IPs for Django Debug Toolbar.
 INTERNAL_IPS = ['127.0.0.1', '::1', '0.0.0.0'] # '::1' for IPv6
 

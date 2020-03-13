@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.urls import reverse
 from django.db import models
 
@@ -9,7 +9,7 @@ from communities.models import Community
 
 class Post(models.Model):
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name="posts",
         on_delete=models.CASCADE,
     )

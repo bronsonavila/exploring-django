@@ -8,6 +8,9 @@ urlpatterns = [
     re_path(r"^$", views.AllPosts.as_view(), name="all"),
     re_path(r"new/$", views.CreatePost.as_view(), name="create"),
     re_path(
+        # NOTE: If this type of logic is used in production, ensure that user
+        # cannot create a username that contains a space. This regex test does
+        # not allow space characters, and an error will occur if one exists.
         r"by/(?P<username>[-\w]+)/$",
         views.UserPosts.as_view(),
         name="for_user"

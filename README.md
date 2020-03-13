@@ -4226,3 +4226,79 @@
   ```
 
   - **SEE ALSO:** A [**full example**](https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#a-full-example) of an admin-compliant custom user app, and the documentation regarding [**managers**](https://docs.djangoproject.com/en/3.0/topics/db/managers/).
+
+#### Custom User Model
+
+- Example:
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/models.py
+
+  # NOTE: The teacher's reasoning for placing `PermissionsMixin` after
+  # `AbstractBaseUser` (rather than vice versa) is because that's how he'd
+  # always seen this example used in the documentation. The course was
+  # originally created when Python was in version 1.9, so this pattern
+  # may be obsolete.
+  class User(AbstractBaseUser, PermissionsMixin):
+      email = models.EmailField(unique=True)
+      username = models.CharField(max_length=40, unique=True)
+      display_name = models.CharField(max_length=140)
+      bio = models.CharField(max_length=140, blank=True, default='')
+      avatar = models.ImageField(blank=True, null=True)
+      date_joined = models.DateTimeField(default=timezone.now)
+      is_active = models.BooleanField(default=True)
+      is_staff = models.BooleanField(default=False)
+
+      # `objects` is the same attribute referenced in `User.objects.all()`
+      objects = UserManager()
+
+      # Specify what field will be used as the unique identifier for looking
+      # someone up in the database.
+      USERNAME_FIELD = 'email'
+      # List of fields that will be prompted for when creating a user via
+      # the `createsuperuser` management command.
+      REQUIRED_FIELDS = ['display_name', 'username']
+
+      def __str__(self):
+          return '@{}'.format(self.username)
+
+      def get_short_name(self):
+          return self.display_name
+
+      def get_long_name(self):
+          return '{} (@{}'.format(self.display_name, self.username)
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/msg/settings.py
+
+  # ...
+
+  # Specify which model to use as the "active" user model for this project.
+  AUTH_USER_MODEL = 'accounts.User'
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/accounts/forms.py
+
+  # NOTE: You cannot use `django.conf import settings` for the `Meta` model.
+  # `settings.AUTH_USER_MODEL` only returns a string, but you need an actual
+  # model object. The `get_user_model` method makes that happen here, as it
+  # always returns the "active" user model (which, in this case, will be the
+  # `AUTH_USER_MODEL` defined in `settings.py`).
+  from django.contrib.auth import get_user_model
+  from django.contrib.auth.forms import UserCreationForm
+
+
+  class UserCreateForm(UserCreationForm):
+      class Meta:
+          fields = ('username', 'email', 'password1', 'password2')
+          model = get_user_model()
+
+      def __init__(self, *args, **kwargs):
+          super().__init__(*args, **kwargs)
+          self.fields['username'].label = 'Display name'
+          self.fields['email'].label = 'Email address'
+  ```
+
+  - **IMPORTANT:** Throughout the project, ensure that you always include `from django.conf import settings` and use `settings.AUTH_USER_MODEL` when necessary to reference your custom model as a string (rather than importing `from django.contrib.auth.models import User` and using `User`). This applies when, e.g., setting a `ManyToManyField` relationship, setting a `ForeignKey`, etc. **HOWEVER**, this would not apply when, e.g., executing a `.objects.create()` query (in which case, you should use `get_user_model()`).

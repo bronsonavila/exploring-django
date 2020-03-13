@@ -1,5 +1,10 @@
+# NOTE: You cannot use `django.conf import settings` for the `Meta` model.
+# `settings.AUTH_USER_MODEL` only returns a string, but you need an actual
+# model object. The `get_user_model` method makes that happen here, as it
+# always returns the "active" user model (which, in this case, will be the
+# `AUTH_USER_MODEL` defined in `settings.py`).
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 
 
 class UserCreateForm(UserCreationForm):
@@ -10,7 +15,7 @@ class UserCreateForm(UserCreationForm):
             'password1',
             'password2',
         )
-        model = User
+        model = get_user_model()
 
     # Override the default form labels.
     def __init__(self, *args, **kwargs):

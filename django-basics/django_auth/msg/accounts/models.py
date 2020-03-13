@@ -39,3 +39,38 @@ class UserManager(BaseUserManager):
         user.is_superuser = True
         user.save()
         return user
+
+
+# NOTE: The teacher's reasoning for placing `PermissionsMixin` after
+# `AbstractBaseUser` (rather than vice versa) is because that's how he'd
+# always seen this example used in the documentation. The course was
+# originally created when Python was in version 1.9, so this pattern
+# may be obsolete.
+class User(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=40, unique=True)
+    display_name = models.CharField(max_length=140)
+    bio = models.CharField(max_length=140, blank=True, default='')
+    avatar = models.ImageField(blank=True, null=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+
+    # `objects` is the same attribute referenced in `User.objects.all()`
+    objects = UserManager()
+
+    # Specify what field will be used as the unique identifier for looking
+    # someone up in the database.
+    USERNAME_FIELD = 'email'
+    # List of fields that will be prompted for when creating a user via
+    # the `createsuperuser` management command.
+    REQUIRED_FIELDS = ['display_name', 'username']
+
+    def __str__(self):
+        return '@{}'.format(self.username)
+
+    def get_short_name(self):
+        return self.display_name
+
+    def get_long_name(self):
+        return '{} (@{}'.format(self.display_name, self.username)

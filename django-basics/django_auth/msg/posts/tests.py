@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.test import TestCase
 
@@ -7,7 +7,7 @@ from . import models
 
 class PostTestCaseBase(TestCase):
     def setUp(self):
-        self.user = User.objects.create(username="kennethlove")
+        self.user = get_user_model().objects.create(username="kennethlove", email="kenneth@teamtreehouse.com")
 
 
 class PostModel(PostTestCaseBase):
@@ -48,7 +48,7 @@ class PostPublicViews(PostTestCaseBase):
         )
 
     def test_user_list(self):
-        user2 = User.objects.create(username="testuser")
+        user2 = get_user_model().objects.create(username="testuser", email="test@user.com")
         msg = models.Post.objects.create(user=user2, message="Not by Kenneth")
         resp = self.client.get(
             reverse("posts:for_user", kwargs={"username": self.user.username})
@@ -96,7 +96,7 @@ class PostPrivateViews(PostTestCaseBase):
         self.assertEqual(models.Post.objects.count(), 0)
 
     def test_delete_others_post_with_login(self):
-        user2 = User.objects.create(username="testuser")
+        user2 = get_user_model().objects.create(username="testuser", email="test@user.com")
         post = models.Post.objects.create(
             user=user2,
             message="Time is short"
@@ -118,8 +118,7 @@ class PostPrivateViews(PostTestCaseBase):
         )
         url = reverse("posts:delete", kwargs={"pk": post.pk})
         resp = self.client.get(url)
-        self.assertNotEqual(resp.status_code, 200)
+        self.assertEqual(models.Post.objects.count(), 1)
 
         resp2 = self.client.post(url, follow=True)
-        self.assertNotEqual(resp2.status_code, 200)
         self.assertEqual(models.Post.objects.count(), 1)
