@@ -4301,4 +4301,6 @@
           self.fields['email'].label = 'Email address'
   ```
 
-  - **IMPORTANT:** Throughout the project, ensure that you always include `from django.conf import settings` and use `settings.AUTH_USER_MODEL` when necessary to reference your custom model as a string (rather than importing `from django.contrib.auth.models import User` and using `User`). This applies when, e.g., setting a `ManyToManyField` relationship, setting a `ForeignKey`, etc. **HOWEVER**, this would not apply when, e.g., executing a `.objects.create()` query (in which case, you should use `get_user_model()`).
+  - **NOTE:** Throughout the project, ensure that you always include `from django.conf import settings` and use `settings.AUTH_USER_MODEL` when necessary to reference your custom model as a string (rather than importing `from django.contrib.auth.models import User` and using `User`). This applies when, e.g., setting a `ManyToManyField` relationship, setting a `ForeignKey`, etc. **HOWEVER**, this would not apply when, e.g., executing a `.objects.create()` query (in which case, you should use `get_user_model()`).
+
+  - **WARNING:** Changing to a custom user model mid-project can lead to significant difficulties. Refer to the [documentation](https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#changing-to-a-custom-user-model-mid-project) and [this thread on Stack Overflow](https://stackoverflow.com/questions/44651760/django-db-migrations-exceptions-inconsistentmigrationhistory/49911140#49911140) for more details.
