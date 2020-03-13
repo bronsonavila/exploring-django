@@ -4234,6 +4234,8 @@
   ```python
   # ./django-basics/django_auth/msg/accounts/models.py
 
+  # ...
+
   # NOTE: The teacher's reasoning for placing `PermissionsMixin` after
   # `AbstractBaseUser` (rather than vice versa) is because that's how he'd
   # always seen this example used in the documentation. The course was
@@ -4266,7 +4268,7 @@
           return self.display_name
 
       def get_long_name(self):
-          return '{} (@{}'.format(self.display_name, self.username)
+          return '{} (@{})'.format(self.display_name, self.username)
   ```
 
   ```python
