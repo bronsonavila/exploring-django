@@ -4531,3 +4531,58 @@
   The [**PermissionRequiredMixin**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#the-permissionrequiredmixin-mixin) is from Django itself, and it only checks for a certain permission. If you need to check for multiple permissions, django-braces offers a [**MultiplePermissionsRequiredMixin**](https://django-braces.readthedocs.io/en/latest/access.html#multiplepermissionsrequiredmixin).
 
   Checking `{{ perms }}` in templates is a great way to show and hide bits and pieces based on what a user is allowed to do. You shouldn't show them buttons they can't actually click! You can also check `has_perm` or `has_perms` on a user model, too, to see if they have the appropriate permission for a bit of logic. For row-level or object-level permissions, [**django-guardian**](https://django-guardian.readthedocs.io/en/stable/) is a great project to check out.
+
+## Django Social Authentication
+
+### Introduction and GitHub Token
+
+- [**django-allauth**](https://django-allauth.readthedocs.io/en/stable/) provides an integrated set of Django applications addressing authentication, registration, account management, and third-party (social) account authentication.
+
+- You can create a **GitHub application** [here](https://github.com/settings/applications/new).
+
+### Setting up django-allauth
+
+1. Install via `pip install django-allauth`.
+
+2. Add `AUTHENTICATION_BACKENDS` to your project's `settings.py` file, e.g.:
+
+    ```python
+    AUTHENTICATION_BACKENDS = (
+      # Must include normal Django admin login for superusers.
+      'django.contrib.auth.backends.ModelBackend',
+      'allauth.account.auth_backends.AuthenticationBackend',
+    )
+    ```
+
+3. Add the following libraries to `INSTALLED_APPS` in `settings.py` to include the required models, templates, views, etc.:
+    - `'django.contrib.sites'`
+    - `'allauth'`
+    - `'allauth.account'`
+    - `'allauth.socialaccount'`
+    - `'allauth.socialaccount.providers.github'`
+
+4. Add a `SITE_ID` value (e.g., `SITE_ID = 1`) to `settings.py`.
+
+    - **NOTE:** Django can run multiple sites with multiple domains from a single Django installation. The `SITE_ID` is used to differentiate the various sites (which might be sharing a single Django installation because they all share the same data).
+
+5. Add a path in your project's `urls.py` file that includes `allauth.urls` (e.g., `path('accounts/', include('allauth.urls'))`))
+
+6. Run the migrations that come with `django-allauth` via `python manage.py migrate`.
+
+7. Run the server, log into the admin, select the `Sites` category, and set the `Domain name`.
+
+8. Go to the `Social Accounts > Social applications` category in the admin console, select `Add`, choose your `Provider`, provide a `Name`, insert the `Client ID` and `Client Secret` from your GitHub application, and ensure your site is moved from `Available sites` to `Chosen sites`.
+
+  - **NOTE:** You may need to revoke all user tokens and reset your client sercret on GitHub if this is a live application.
+
+### Requiring Emails and Customization
+
+- Add `ACCOUNT_EMAIL_REQUIRED = True` to `settings.py` to require that users provide an email address when they sign up.
+
+- Add `ACCOUNT_EMAIL_VERIFICATION = True` to `settings.py` to require that a user must click a verification link (sent to their email address) before the account is active.
+
+- Add `ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True` to `settings.py` to have users be automatically logged in after they've clicked the verification link.
+
+- You can customize the email confirmation screen by adding a template to your project called `templates/account/email_confirm.html`, as well as the preceding verification screen via `templates/account/verification_sent.html`.
+
+  - **NOTE:** Both templates require `{% load account social account %}`
