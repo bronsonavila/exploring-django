@@ -1,5 +1,9 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
+from django.contrib.auth.models import Group, Permission
 from django.urls import reverse
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
@@ -85,4 +89,70 @@ class LeaveCommunity(LoginRequiredMixin, generic.RedirectView):
                 self.request,
                 "You've left the group!"
             )
+        return super().get(request, *args, **kwargs)
+
+
+class ChangeStatus(
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+    generic.RedirectView
+):
+    # If someone has permission to ban a member, then they will
+    # have permission to change a user's status.
+    permission_required = 'communities.ban_member'
+
+    # Override default method.
+    def has_permission(self):
+        # Returns `True` if any of the following are true:
+        return any([
+            # User has the permission specifically assinged to them...
+            super().has_permission(),
+            # ...or the user is an admin.
+            self.request.user.id in self.get_object().admins
+        ])
+
+    def get_object(self):
+        return get_object_or_404(
+            models.Community,
+            slug=self.kwargs.get('slug')
+        )
+
+    def get_redirect_url(self, *args, **kwargs):
+        return self.get_object().get_absolute_url()
+
+    # Initiate change of status when clicking upgrade/downgrade/ban button.
+    def get(self, request, *args, **kwargs):
+        role = int(self.kwargs.get('status'))
+        membership = get_object_or_404(
+            models.CommunityMember,
+            community__slug=self.kwargs.get('slug'),
+            user__id=self.kwargs.get('user_id')
+        )
+        membership.role = role
+        membership.save() # Assign new role to selected user.
+
+        # Attempt to add user to `moderators` group. If the group does
+        # not exist, then create it and give moderators permission to
+        # ban members.
+        try:
+            moderators = Group.objects.get(name__iexact='moderators')
+        except Group.DoesNotExist:
+            moderators = Group.objects.create(name='Moderators')
+            moderators.permissions.add(
+                Permission.objects.get(codename='ban_members')
+            )
+
+        # If the role assigned to the user is `moderator` or `admin`,
+        # then add that user to the `moderators` group. Otherwise,
+        # remove the user from that group.
+        if role in [2, 3]:
+            membership.user.groups.add(moderators)
+        else:
+            membership.user.groups.remove(moderators)
+
+        messages.success(request, '@{} is now {}'.format(
+            membership.user.username,
+            membership.get_role_display(),
+        ))
+
         return super().get(request, *args, **kwargs)

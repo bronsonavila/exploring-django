@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import path, re_path
 
 from . import views
 
@@ -22,4 +22,9 @@ urlpatterns = [
         views.LeaveCommunity.as_view(),
         name="leave"
     ),
+    path(
+        'change_status/<slug:slug>/<int:user_id>/<int:status>/',
+        views.ChangeStatus.as_view(),
+        name='change_status'
+    )
 ]

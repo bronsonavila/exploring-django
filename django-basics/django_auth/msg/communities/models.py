@@ -31,6 +31,21 @@ class Community(models.Model):
     def get_absolute_url(self):
         return reverse("communities:single", kwargs={"slug": self.slug})
 
+    # NOTE: The instructor stated that these three properties could (and
+    # probably should) be done as methods on a custom model manager.
+    @property
+    def admins(self):
+        # Return list of IDs of the users who are admins.
+        return self.memberships.filter(role=3).values_list('user', flat=True)
+
+    @property
+    def moderators(self):
+        return self.memberships.filter(role=2).values_list('user', flat=True)
+
+    @property
+    def good_members(self):
+        return self.memberships.exclude(role=0)
+
     class Meta:
         ordering = ["name"]
         verbose_name_plural = "communities"
@@ -57,4 +72,10 @@ class CommunityMember(models.Model):
         )
 
     class Meta:
+        # When you add a new permission, you are adding it to the
+        # `permissions` table, which requires a new migration.
+        permissions = (
+            # The second item is displayed in the admin menu.
+            ('ban member', 'Can ban members'),
+        )
         unique_together = ("community", "user")

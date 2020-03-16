@@ -4306,3 +4306,228 @@
   - **NOTE:** Throughout the project, ensure that you always include `from django.conf import settings` and use `settings.AUTH_USER_MODEL` when necessary to reference your custom model as a string (rather than importing `from django.contrib.auth.models import User` and using `User`). This applies when, e.g., setting a `ManyToManyField` relationship, setting a `ForeignKey`, etc. **HOWEVER**, this would not apply when, e.g., executing a `.objects.create()` query (in which case, you should use `get_user_model()`).
 
   - **WARNING:** Changing to a custom user model mid-project can lead to significant difficulties. Refer to the [documentation](https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#changing-to-a-custom-user-model-mid-project) and [this thread on Stack Overflow](https://stackoverflow.com/questions/44651760/django-db-migrations-exceptions-inconsistentmigrationhistory/49911140#49911140) for more details.
+
+#### Permissions
+
+- Example:
+
+  ```python
+  # ./django-basics/django_auth/msg/communities/models.py
+
+  from django.conf import settings
+  from django.urls import reverse
+  from django.db import models
+  from django.utils.text import slugify
+
+  import misaka
+
+  MEMBERSHIP_CHOICES = (
+      (0, "banned"),
+      (1, "member"),
+      (2, "moderator"),
+      (3, "admin")
+  )
+
+
+  class Community(models.Model):
+      name = models.CharField(max_length=255, unique=True)
+      slug = models.SlugField(allow_unicode=True, unique=True)
+      description = models.TextField(blank=True, default='')
+      description_html = models.TextField(editable=False, default='', blank=True)
+      members = models.ManyToManyField(settings.AUTH_USER_MODEL, through="CommunityMember")
+
+      def __str__(self):
+          return self.name
+
+      def save(self, *args, **kwargs):
+          self.slug = slugify(self.name)
+          self.description_html = misaka.html(self.description)
+          super().save(*args, **kwargs)
+
+      def get_absolute_url(self):
+          return reverse("communities:single", kwargs={"slug": self.slug})
+
+      # NOTE: The instructor stated that these three properties could (and
+      # probably should) be done as methods on a custom model manager.
+      @property
+      def admins(self):
+          # Return list of IDs of the users who are admins.
+          return self.memberships.filter(role=3).values_list('user', flat=True)
+
+      @property
+      def moderators(self):
+          return self.memberships.filter(role=2).values_list('user', flat=True)
+
+      @property
+      def good_members(self):
+          return self.memberships.exclude(role=0)
+
+      class Meta:
+          ordering = ["name"]
+          verbose_name_plural = "communities"
+
+
+  class CommunityMember(models.Model):
+      community = models.ForeignKey(
+          Community,
+          related_name="memberships",
+          on_delete=models.CASCADE,
+      )
+      user = models.ForeignKey(
+          settings.AUTH_USER_MODEL,
+          related_name="communities",
+          on_delete=models.CASCADE,
+      )
+      role = models.IntegerField(choices=MEMBERSHIP_CHOICES, default=1)
+
+      def __str__(self):
+          return "{} is {} in {}".format(
+              self.user.username,
+              self.role,
+              self.community.name
+          )
+
+      class Meta:
+          # When you add a new permission, you are adding it to the
+          # `permissions` table, which requires a new migration.
+          permissions = (
+              # The second item is displayed in the admin menu.
+              ('ban member', 'Can ban members'),
+          )
+          unique_together = ("community", "user")
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/communities/views.py
+
+  from django.contrib.auth.mixins import (
+      LoginRequiredMixin,
+      PermissionRequiredMixin,
+  )
+  from django.contrib.auth.models import Group, Permission
+
+  # ...
+
+  class ChangeStatus(
+      LoginRequiredMixin,
+      PermissionRequiredMixin,
+      generic.RedirectView
+  ):
+      # If someone has permission to ban a member, then they will
+      # have permission to change a user's status.
+      permission_required = 'communities.ban_member'
+
+      # Override default method.
+      def has_permission(self):
+          # Returns `True` if any of the following are true:
+          return any([
+              # User has the permission specifically assinged to them...
+              super().has_permission(),
+              # ...or the user is an admin.
+              self.request.user.id in self.get_object().admins
+          ])
+
+      def get_object(self):
+          return get_object_or_404(
+              models.Community,
+              slug=self.kwargs.get('slug')
+          )
+
+      def get_redirect_url(self, *args, **kwargs):
+          return self.get_object().get_absolute_url()
+
+      # Initiate change of status when clicking upgrade/downgrade/ban button.
+      def get(self, request, *args, **kwargs):
+          role = int(self.kwargs.get('status'))
+          membership = get_object_or_404(
+              models.CommunityMember,
+              community__slug=self.kwargs.get('slug'),
+              user__id=self.kwargs.get('user_id')
+          )
+          membership.role = role
+          membership.save() # Assign new role to selected user.
+
+          # Attempt to add user to `moderators` group. If the group does
+          # not exist, then create it and give moderators permission to
+          # ban members.
+          try:
+              moderators = Group.objects.get(name__iexact='moderators')
+          except Group.DoesNotExist:
+              moderators = Group.objects.create(name='Moderators')
+              moderators.permissions.add(
+                  Permission.objects.get(codename='ban_members')
+              )
+
+          # If the role assigned to the user is `moderator` or `admin`,
+          # then add that user to the `moderators` group. Otherwise,
+          # remove the user from that group.
+          if role in [2, 3]:
+              membership.user.groups.add(moderators)
+          else:
+              membership.user.groups.remove(moderators)
+
+          messages.success(request, '@{} is now {}'.format(
+              membership.user.username,
+              membership.get_role_display(),
+          ))
+
+          return super().get(request, *args, **kwargs)
+  ```
+
+  ```python
+  # ./django-basics/django_auth/msg/communities/urls.py
+
+  # ...
+
+  urlpatterns = [
+      # ...
+      path(
+          'change_status/<slug:slug>/<int:user_id>/<int:status>/',
+          views.ChangeStatus.as_view(),
+          name='change_status'
+      )
+  ]
+  ```
+
+  ```html
+  # ./django-basics/django_auth/msg/communities/templates/communities/community_detail.html
+
+  # ...
+
+  <div class="content">
+    <h5 class="title">Members</h5>
+    <ul class="list-unstyled">
+      <!-- Only show unbanned members in the members list. -->
+      {% for membership in community.good_members %}
+        <li class="row">
+          <a href="{% url 'posts:for_user' username=membership.user.username %}" class="col-md-9">{{ membership.user. display_name }}</a>
+          <div class="col-md-3 text-right">
+            {% if user.id in community.admins or user.id in community.moderators %}
+              {% if membership.user.id in community.moderators %}
+                <!-- Downgrade status to `member`. -->
+                <a href="{% url 'communities:change_status' slug=community.slug user_id=membership.user.id status=1 %}"><i class="glyphicon glyphicon-thumbs-down text-warning"></i></a>
+              {% endif %}
+              {% if membership.user.id not in community.moderators and membership.user.id not in community.admins %}
+                <!-- Upgrade status to `moderator`. -->
+                <a href="{% url 'communities:change_status' slug=community.slug user_id=membership.user.id status=2 %}"><i class="glyphicon glyphicon-thumbs-up text-warning"></i></a>
+              {% endif %}
+              <!-- Only admins/moderators with permission to ban members can use this. -->
+              {% if perms.communities.ban_member %}
+                <!-- Ban user. -->
+                <a href="{% url 'communities:change_status' slug=community.slug user_id=membership.user.id status=0 %}"><i class="glyphicon glyphicon-ban-circle text-danger"></i></a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  ```
+
+- Teacher's Notes:
+
+  Permissions get into one of the hairier parts of Django, the `contentypes` framework. Have a look through the [**contenttypes docs**](https://docs.djangoproject.com/en/3.0/ref/contrib/contenttypes/) if you want to know more. In short, though, it's a model that holds a reference to every non-abstract model in your project.
+
+  The [**PermissionRequiredMixin**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#the-permissionrequiredmixin-mixin) is from Django itself, and it only checks for a certain permission. If you need to check for multiple permissions, django-braces offers a [**MultiplePermissionsRequiredMixin**](https://django-braces.readthedocs.io/en/latest/access.html#multiplepermissionsrequiredmixin).
+
+  Checking `{{ perms }}` in templates is a great way to show and hide bits and pieces based on what a user is allowed to do. You shouldn't show them buttons they can't actually click! You can also check `has_perm` or `has_perms` on a user model, too, to see if they have the appropriate permission for a bit of logic. For row-level or object-level permissions, [**django-guardian**](https://django-guardian.readthedocs.io/en/stable/) is a great project to check out.
