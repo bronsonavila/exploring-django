@@ -1,10 +1,180 @@
 # Exploring Django
 
-## Regular Expressions in Python
+## Table of Contents
 
-### Introduction to Regular Expressions
+- ## [Regular Expressions in Python](#id-regular-expressions-in-python)
+  - ### [Introduction to Regular Expressions](#id-introduction-to-regular-expressions)
+    - #### [Reading Files](#id-reading-files)
+    - #### [Escape Hatches](#id-escape-hatches)
+    - #### [Counts](#id-counts)
+    - #### [Sets](#id-sets)
+    - #### [Negation](#id-negation)
+    - #### [Groups](#id-groups)
+    - #### [Compiling and Loops](#id-compiling-and-loops)
 
-#### Reading Files
+- ## [Using Databases in Python](#id-using-databases-in-python)
+  - ### [Meet Peewee](#id-meet-peewee)
+    - #### [Meet Peewee, Our ORM](#id-meet-peewee-our-orm)
+
+- ## [Python Testing](#id-python-testing)
+  - ### [First Steps With Testing](#id-first-steps-with-testing)
+    - #### [Writing and Running Doctests](#id-writing-and-running-doctests)
+    - #### [Your First unittest Test Case](#id-your-first-unittest-test-case)
+  - ### [Be Assertive](#id-be-assertive)
+    - #### [Quantitative Assertions](#id-quantitative-assertions)
+    - #### [Exceptions](#id-exceptions)
+  - ### [Covering Your Bases](#id-covering-your-bases)
+    - #### [Using Coverage](#id-using-coverage)
+    - #### [HTML Reports](#id-html-reports)
+
+- ## [Django Basics](#id-django-basics)
+  - ### [Say Hello to Django](#id-say-hello-to-django)
+    - #### [Installing Django](#id-installing-django)
+    - #### [Starting the Project](#id-starting-the-project)
+  - ### [What a View!](#id-what-a-view)
+    - #### [Running the Server](#id-running-the-server)
+    - #### [Hello Django](#id-hello-django)
+    - #### [What Are URLs?](#id-what-are-urls)
+    - #### [Our First App](#id-our-first-app)
+  - ### [Model Administration](#id-model-administration)
+    - #### [What are Models?](#id-what-are-models)
+    - #### [Adding Instances](#id-adding-instances)
+    - #### [First App View](#id-first-app-view)
+    - #### [Python Comprehensions](#id-python-comprehensions)
+    - #### [Django's Admin](#id-djangos-admin)
+  - ### [Django Templates](#id-django-templates)
+    - #### [Templates](#id-templates)
+    - #### [Template Inheritance](#id-template-inheritance)
+    - #### [Static Assets](#id-static-assets)
+    - #### [Step by Step](#id-step-by-step)
+    - #### [Add a Detail View](#id-add-a-detail-view)
+    - #### [Ordering and 404s](#id-ordering-and-404-s)
+  - ### [Final Details](#id-final-details)
+    - #### [url Tag](#id-url-tag)
+  - ### [Test Time](#id-test-time)
+    - #### [Model Tests](#id-model-tests)
+    - #### [View Tests](#id-view-tests)
+    - #### [Template Tests](#id-template-tests)
+
+- ## [Customizing Django Templates](#id-customizing-django-templates)
+  - ### [Template Tags and Filters](#id-template-tags-and-filters)
+    - #### [CSS in Django](#id-css-in-django)
+    - #### [Handy Dandy Filters](#id-handy-dandy-filters)
+    - #### [Using Template Libraries](#id-using-template-libraries)
+  - ### [Building Custom Tags](#id-building-custom-tags)
+    - #### [Built-in Tags and Filters](#id-built-in-tags-and-filters)
+    - #### [DIY Custom Tags](#id-diy-custom-tags)
+    - #### [Complex Template Tags](#id-complex-template-tags)
+  - ### [Building Custom Filters](#id-building-custom-filters)
+    - #### [Custom Time Estimate Filter](#id-custom-time-estimate-filter)
+    - #### [Custom Tags](#id-custom-tags)
+
+- ## [Django Forms](#id-django-forms)
+  - ### [Forms](#id-forms)
+    - #### [Creating a Form](#id-creating-a-form)
+    - #### [Showing a Form in a View](#id-showing-a-form-in-a-view)
+    - #### [Handling a Form in a View](#id-handling-a-form-in-a-view)
+    - #### [Custom Field Validation](#id-custom-field-validation)
+    - #### [Using and Creating Validators](#id-using-and-creating-validators)
+    - #### [Cleaning a Whole Form](#id-cleaning-a-whole-form)
+  - ### [More on Models](#id-more-on-models)
+    - #### [Abstract Inheritance](#id-abstract-inheritance)
+    - #### [Multiple Choice and True/False Questions](#id-multiple-choice-and-true-false-questions)
+  - ### [Model Forms](#id-model-forms)
+    - #### [What are Model Forms?](#id-what-are-model-forms)
+    - #### [Using a Model Form](#id-using-a-model-form)
+    - #### [Edit an Instance](#id-edit-an-instance)
+  - ### [Inlines and Media](#id-inlines-and-media)
+    - #### [Formsets](#id-formsets)
+    - #### [Inline Model Formset](#id-inline-model-formset)
+    - #### [Custom Form Media](#id-custom-form-media)
+
+- ## [Django ORM](#id-django-orm)
+  - ### [Same Old ORM](#id-same-old-orm)
+    - #### [Let's Review](#id-let-s-review)
+    - #### [Model Upgrades](#id-model-upgrades)
+    - #### [Django Debug Toolbar](#id-django-debug-toolbar)
+  - ### [Basic ORM Usage](#id-basic-orm-usage)
+    - #### [Restricting Results](#id-restricting-results)
+    - #### [Exclusivity](#id-exclusivity)
+    - #### [Updates and Deletes](#id-updates-and-deletes)
+    - #### [The Miracle of Creation](#id-the-miracle-of-creation)
+    - #### [Take Control](#id-take-control)
+  - ### [Total Control](#id-total-control)
+    - #### [Brought to You by the Letter F](#id-brought-to-you-by-the-letter-f)
+    - #### [Mind your Ps and Qs](#id-mind-your-ps-and-qs)
+    - #### [Aggregate and Annotate](#id-aggregate-and-annotate)
+    - #### [Related Records](#id-related-records)
+
+- ## [Customizing the Django Admin](#id-customizing-the-django-admin)
+  - ### [Using the Django Admin](#id-using-the-django-admin)
+    - #### [Your First Admin Customization](#id-your-first-admin-customization)
+    - #### [Changing Field Order](#id-changing-field-order)
+  - ### [Customizing the List View](#id-customizing-the-list-view)
+    - #### [Adding Search and Filters](#id-adding-search-and-filters)
+    - #### [Building Custom Filters](#id-building-custom-filters)
+    - #### [Customizing What You See](#id-customizing-what-you-see)
+    - #### [Customizing Attributes](#id-customizing-attributes)
+    - #### [Editing the List View](#id-editing-the-list-view)
+  - ### [Customizing the Detail View](#id-customizing-the-detail-view)
+    - #### [Customize the Look of the Detail View](#id-customize-the-look-of-the-detail-view)
+    - #### [Horizontal Select and TabularInline](#id-horizontal-select-and-tabular-inline)
+    - #### [Making a Text Preview](#id-making-a-text-preview)
+    - #### [Finishing the Markdown Preview](#id-finishing-the-markdown-preview)
+    - #### [Adding Custom Admin Actions](#id-adding-custom-admin-actions)
+
+- ## [Django Class-based Views](#id-django-class-based-views)
+  - ### [Classy Views](#id-classy-views)
+    - #### [What are Class-based Views?](#id-what-are-class-based-views)
+    - #### [The View Class](#id-the-view-class)
+    - #### [Template View](#id-template-view)
+    - #### [ListView and DetailView](#id-list-view-and-detail-view)
+    - #### [CRUD View](#id-crud-view)
+  - ### [Customizing Class-based Views](#id-customizing-class-based-views)
+    - #### [Overriding Methods](#id-overriding-methods)
+    - #### [Franken-Views](#id-franken-views)
+    - #### [Mixins](#id-mixins)
+
+- ## [Django REST Framework](#id-django-rest-framework)
+  - ### [Installation](#id-installation)
+  - ### [Make the REST Framework Work for You](#id-make-the-rest-framework-work-for-you)
+    - #### [Generic CRUD](#id-generic-crud)
+    - #### [Overriding Generic View Methods](#id-overriding-generic-view-methods)
+    - #### [Viewsets and Routers](#id-viewsets-and-routers)
+    - #### [Customizing Viewsets](#id-customizing-viewsets)
+    - #### [Relations](#id-relations)
+    - #### [Pagination](#id-pagination)
+  - ### [Security and Customization](#id-security-and-customization)
+    - #### [Token Authentication](#id-token-authentication)
+    - #### [Permissions](#id-permissions)
+    - #### [Enhancing Your Calm with Throttling](#id-enhancing-your-calm-with-throttling)
+    - #### [Customizing Validation](#id-customizing-validation)
+    - #### [Customizing Serialization](#id-customizing-serialization)
+
+- ## [Django Authentication](#id-django-authentication)
+  - ### [Authentication](#id-authentication)
+    - #### [Requiring Logins](#id-requiring-logins)
+    - #### [LoginView](#id-login-view)
+    - #### [LogoutView and SignUpView](#id-logout-view-and-sign-up-view)
+    - #### [Resetting Passwords](#id-resetting-passwords)
+  - ### [Users and Authorization](#id-users-and-authorization)
+    - #### [User Diversity](#id-user-diversity)
+    - #### [Custom User Manager](#id-custom-user-manager)
+    - #### [Custom User Model](#id-custom-user-model)
+    - #### [Permissions](#id-permissions)
+
+- ## [Django Social Authentication](#id-django-social-authentication)
+  - ### [Introduction and GitHub Token](#id-introduction-and-git-hub-token)
+  - ### [Setting up django-allauth](#id-setting-up-django-allauth)
+  - ### [Requiring Emails and Customization](#id-requiring-emails-and-customization)
+
+---
+
+## Regular Expressions in Python <span id="id-regular-expressions-in-python">[^](#regular-expressions-in-python)</span>
+
+### Introduction to Regular Expressions <span id="id-introduction-to-regular-expressions">[^](#introduction-to-regular-expressions)</span>
+
+#### Reading Files <span id="id-reading-files">[^](#reading-files)</span>
 
 - Use the `open()` function to open a file by passing a file name as an argument. You can also specify an optional encoding value:
 
@@ -46,7 +216,7 @@
   print(re.search(r'Kenneth', data))
   ```
 
-#### Escape Hatches
+#### Escape Hatches <span id="id-escape-hatches">[^](#escape-hatches)</span>
 
 - `\w` : Any Unicode **word character** (i.e., all letters, numbers, and the underscore).
 - `\W` : Anything that is *not* a Unicode word character.
@@ -61,7 +231,7 @@
   - Between two characters in the string, where one *is* a word character and the other is *not* a word character.
 - `\B` : Anything that is *not* a word boundary.
 
-#### Counts
+#### Counts <span id="id-counts">[^](#counts)</span>
 
 + Types:
   - `{`*`n`*`}` : Occurs *exactly* *n* times.
@@ -81,7 +251,7 @@
   re.findall(r'\(?\d{3}\)?-?\s?\d{3}-\d{4}', data) # Finds all phone numbers.
   ```
 
-#### Sets
+#### Sets <span id="id-sets">[^](#sets)</span>
 
 - Sets are defined with **square brackets**. They are used to combine explicit characters and escape patterns into pieces that can be repeated multiple times. They also are used to specify pieces that should be left out of any matches, e.g.:
 
@@ -107,7 +277,7 @@
   print(re.findall(r'\b[trehous]{9}\b', data, re.I)) # Finds treehouse, Treehouse, etc.
   ```
 
-#### Negation
+#### Negation <span id="id-negation">[^](#negation)</span>
 
 - Use the `re.VERBOSE` (or `re.X`) flag to write regular expressions across multiple lines (ignoring white space and comments):
 
@@ -124,7 +294,7 @@
 
   - **NOTE:** The **pipe character** (`|`) can be used to combine multiple flags; e.g., `re.I|re.X`.
 
-#### Groups
+#### Groups <span id="id-groups">[^](#groups)</span>
 
 - Use **parentheses** to identify groups.
 - Each group can be given a **name** that can be used for dictionary-like access by using the following syntax at the start of the group: `?P<name>`.
@@ -145,7 +315,7 @@
   print(line.groupdict()) # Prints key-value pairs for "name", "email", etc.
   ```
 
-#### Compiling and Loops
+#### Compiling and Loops <span id="id-compiling-and-loops">[^](#compiling-and-loops)</span>
 
 - Use the `compile()` method to compile a regex pattern into a regex object that can be reused.
 - Use the `finditer()` method in a loop upon a compiled `re.search()` object to retrieve an **iterable** of each non-overlapping match in a string. The result is similar to using `findall()`, but you receive a **match object** (instead of tuples), which is what you receive when using `re.match()` or `re.search()`.
@@ -176,11 +346,13 @@
       print('{first} {last} <{email}>'.format(**match.groupdict()))
   ```
 
-## Using Databases in Python
+---
 
-### Meet Peewee
+## Using Databases in Python <span id="id-using-databases-in-python">[^](#using-databases-in-python)</span>
 
-#### Meet Peewee, Our ORM
+### Meet Peewee <span id="id-meet-peewee">[^](#meet-peewee)</span>
+
+#### Meet Peewee, Our ORM <span id="id-meet-peewee-our-orm">[^](#meet-peewee-our-orm)</span>
 
 - **Installation**
 
@@ -252,11 +424,13 @@
 
   ```
 
-## Python Testing
+---
 
-### First Steps With Testing
+## Python Testing <span id="id-python-testing">[^](#python-testing)</span>
 
-#### Writing and Running Doctests
+### First Steps With Testing <span id="id-first-steps-with-testing">[^](#first-steps-with-testing)</span>
+
+#### Writing and Running Doctests <span id="id-writing-and-running-doctests">[^](#writing-and-running-doctests)</span>
 
 - **Doctests** are written in plain text in the **docstring** of a function or class. Examples:
 
@@ -332,7 +506,7 @@
 
   - **NOTE:** The `-m` flag tells Python to load the `doctest` module. The `doctest` module reviews the file for doctests and runs them. If no messages are printed to the console, then all of the tests passed successfully.
 
-#### Your First unittest Test Case
+#### Your First unittest Test Case <span id="id-your-first-unittest-test-case">[^](#your-first-unittest-test-case)</span>
 
 - A **test case** is a class that contains multiple methods (some of which are tests, and others simply being methods that you need). There are two special methods--**Set Up** and **Tear Down**--that are run before and after each test.
 
@@ -364,9 +538,9 @@
     $ python -m unittest tests.py
     ```
 
-### Be Assertive
+### Be Assertive <span id="id-be-assertive">[^](#be-assertive)</span>
 
-#### Quantitative Assertions
+#### Quantitative Assertions <span id="id-quantitative-assertions">[^](#quantitative-assertions)</span>
 
 - **Assertions** test a condition in your code that must be met. Examples:
 
@@ -402,7 +576,7 @@
       unittest.main()
   ```
 
-#### Exceptions
+#### Exceptions <span id="id-exceptions">[^](#exceptions)</span>
 
 - Example of testing for exceptions:
 
@@ -414,9 +588,9 @@
           dice.Roll('2b6')
   ```
 
-### Covering Your Bases
+### Covering Your Bases <span id="id-covering-your-bases">[^](#covering-your-bases)</span>
 
-#### Using Coverage
+#### Using Coverage <span id="id-using-coverage">[^](#using-coverage)</span>
 
 - Run `pip install coverage` to install Coverage.
 
@@ -436,7 +610,7 @@
 
 - Ideally, aim for code coverage of 90% or better.
 
-#### HTML Reports
+#### HTML Reports <span id="id-html-reports">[^](#html-reports)</span>
 
 - Instead of generating a Coverage report in the terminal, you can run the following command to prepare an HTML report that can be viewed in your browser:
 
@@ -450,15 +624,17 @@
   $ python -m http.server
   ```
 
-## Django Basics
+---
 
-### Say Hello to Django
+## Django Basics <span id="id-django-basics">[^](#django-basics)</span>
 
-#### Installing Django
+### Say Hello to Django <span id="id-say-hello-to-django">[^](#say-hello-to-django)</span>
+
+#### Installing Django <span id="id-installing-django">[^](#installing-django)</span>
 
 - Run `pip install django` to install Django.
 
-#### Starting the Project
+#### Starting the Project <span id="id-starting-the-project">[^](#starting-the-project)</span>
 
 - Use `django-admin` to access admin commands to perform tasks such as creating a new project, e.g.:
 
@@ -477,13 +653,13 @@
   +-- manage.py         // Admin commands entry point
   ```
 
-  - **NOTE:** Always use underscores for Python packages.
+  - **NOTE:** Always use underscores rather than spaces when naming Python packages.
 
-  - **NOTE:** Refere to [the documentation](https://docs.djangoproject.com/en/3.0/ref/django-admin/) for a full list of `django-admin` and `manage.py` commands.
+  - **NOTE:** Refer to [the documentation](https://docs.djangoproject.com/en/3.0/ref/django-admin/) for a full list of `django-admin` and `manage.py` commands.
 
-### What a View!
+### What a View! <span id="id-what-a-view">[^](#what-a-view)</span>
 
-#### Running the Server
+#### Running the Server <span id="id-running-the-server">[^](#running-the-server)</span>
 
 - Use the `manage.py` file to tell the server what port it should listen to for receiving requests:
 
@@ -499,7 +675,7 @@
 
   This will add a new file called `db.sqlite3`, which is the default Django database.
 
-#### Hello Django
+#### Hello Django <span id="id-hello-django">[^](#hello-django)</span>
 
 - Django is an MVC framework, but it does not call templates "views", nor does it call the functions that render templates "controllers". Rather, Django calls templates "templates" and controllers "views" (MTV):
 
@@ -524,7 +700,7 @@
 
 - A view must be assigned to a route in order to be rendered.
 
-#### What Are URLs?
+#### What Are URLs? <span id="id-what-are-urls">[^](#what-are-urls)</span>
 
 - Django URLs are added via the `urls.py` file, e.g.:
 
@@ -542,7 +718,7 @@
   ]
   ```
 
-#### Our First App
+#### Our First App <span id="id-our-first-app">[^](#our-first-app)</span>
 
 - Django **Projects** are composed of pluggable **Apps**, with each app encompassing a specific area of functionality. While you use `django-admin startproject` to create a new project, you would use `django-admin startapp` to create an app within the project, e.g.:
 
@@ -558,9 +734,9 @@
 
   - **NOTE:** The `settings.py` file is also where you can modify the server's `TIME_ZONE`.
 
-### Model Administration
+### Model Administration <span id="id-model-administration">[^](#model-administration)</span>
 
-#### What are Models?
+#### What are Models? <span id="id-what-are-models">[^](#what-are-models)</span>
 
 - In Django, models are classes that represent database tables. Each model is its own table, and each attribute on the class is a column in the table. When we add new instances of a class to the database, Django's ORM creates a new row in the table.
 - Models belong to an app and live in the app's `models.py` file. Model names should be **singular** by convention, and most models will extend from the `models.Model` base class, e.g.:
@@ -594,7 +770,7 @@
 
   Migrations for 'courses':
     courses/migrations/0001_initial.py
-      - Create model Course
+      - #### Create model Course
   ```
 
 - After making the migration, you next need to **run the migration**:
@@ -608,7 +784,7 @@
     Applying courses.0001_initial... OK
   ```
 
-#### Adding Instances
+#### Adding Instances <span id="id-adding-instances">[^](#adding-instances)</span>
 
 - You can quickly explore the ORM and create new records by opening Python's shell with Django's configuration already loaded:
 
@@ -651,7 +827,7 @@
 
   - **NOTE:** The `objects` attributes points to a **model manager**, which is a class that controls access to the model's instances (among other things).
 
-#### First App View
+#### First App View <span id="id-first-app-view">[^](#first-app-view)</span>
 
 - You can include views from apps into the main project as follows:
 
@@ -698,7 +874,7 @@
   ]
   ```
 
-#### Python Comprehensions
+#### Python Comprehensions <span id="id-python-comprehensions">[^](#python-comprehensions)</span>
 
 ##### List Comprehensions
 
@@ -723,7 +899,7 @@
 
   ```python
   # Only include numbers divisible by 3:
-  divisble_by_three = [num for num in nums if num % 3 == 0]
+  divisible_by_three = [num for num in nums if num % 3 == 0]
   ```
 
 - You can use double comprehensions when working with two lists:
@@ -735,7 +911,7 @@
 
 ##### Dict Comprehensions
 
-- Example where a numberic key is tied to a letter of the alphabet:
+- Example where a numeric key is tied to a letter of the alphabet:
 
   ```python
   {number: letter for letter, number in zip('ABCD', range(1, 5))}
@@ -751,7 +927,7 @@
   # {84, 10, 4, 36}
   ```
 
-#### Django's Admin
+#### Django's Admin <span id="id-django-s-admin">[^](#django-s-admin)</span>
 
 - Create a **super user** to access the admin view:
 
@@ -773,9 +949,9 @@
 
 - From this view, you can create, read, update, and delete records.
 
-### Django Templates
+### Django Templates <span id="id-django-templates">[^](#django-templates)</span>
 
-#### Templates
+#### Templates <span id="id-templates">[^](#templates)</span>
 
 - In Django, templates can be in any language that you want (e.g., HTML, JSON, XML). Django ships built-in backends for its own template system, called the Django template language (DTL), and for [**Jinja2**](http://jinja.pocoo.org/).
 
@@ -809,7 +985,7 @@
 
 - For templates within the **project** itself (as opposed to one of the project's app directories), (1) create a `/templates` directory at the project root level, and (2) modify the `DIRS` list under the `TEMPLATES` variable within `settings.py` to include the directory containing project templates, i.e., `'DIRS': ['templates',]`.
 
-#### Template Inheritance
+#### Template Inheritance <span id="id-template-inheritance">[^](#template-inheritance)</span>
 
 - Example:
 
@@ -838,7 +1014,7 @@
   {% endblock %}
   ```
 
-#### Static Assets
+#### Static Assets <span id="id-static-assets">[^](#static-assets)</span>
 
 - The location of [**static assets**](https://docs.djangoproject.com/en/3.0/howto/static-files/) (e.g., CSS, JS, images) must be referenced in `settings.py` by adding a setting named `STATICFILES_DIRS` (which is a tuple):
 
@@ -884,7 +1060,7 @@
     urlpatterns += staticfiles_urlpatterns()
     ```
 
-#### Step by Step
+#### Step by Step <span id="id-step-by-step">[^](#step-by-step)</span>
 
 - You may have a situation where one model has a relationship to another, and you want to be able to configure the model and its related counterpart in the same admin menu. For example, you may have a collection of "Courses", and each course has a number of instructional "Steps" to follow:
 
@@ -937,7 +1113,7 @@
   admin.site.register(Step) # Could be deleted.
   ```
 
-#### Add a Detail View
+#### Add a Detail View <span id="id-add-a-detail-view">[^](#add-a-detail-view)</span>
 
 - Example:
 
@@ -1002,7 +1178,7 @@
 
   - **NOTE:** [**prefetch_related**](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.prefetch_related) and [**select_related**](https://docs.djangoproject.com/en/3.0/ref/models/querysets/#django.db.models.query.QuerySet.select_related) may also be useful in making queries.
 
-#### Ordering and 404s
+#### Ordering and 404s <span id="id-ordering-and-404s">[^](#ordering-and-404s)</span>
 
 - Modify the order of records as follows:
 
@@ -1053,9 +1229,9 @@
 
   - **NOTE:** You can customize error views by following the instructions [here](https://docs.djangoproject.com/en/3.0/topics/http/views/#customizing-error-views).
 
-### Final Details
+### Final Details <span id="id-final-details">[^](#final-details)</span>
 
-#### url Tag
+#### url Tag <span id="id-url-tag">[^](#url-tag)</span>
 
 - Example:
 
@@ -1115,9 +1291,9 @@
   </div>
   ```
 
-### Test Time
+### Test Time <span id="id-test-time">[^](#test-time)</span>
 
-#### Model Tests
+#### Model Tests <span id="id-model-tests">[^](#model-tests)</span>
 
 - Testing models is usually the first step in thoroughly testing a Django app. All apps will include a `tests.py` file when they are created. Once you have written your tests, run them using the `test` command of your project's `manage.py` utility:
 
@@ -1125,7 +1301,7 @@
   $ python manage.py test
   ```
 
-#### View Tests
+#### View Tests <span id="id-view-tests">[^](#view-tests)</span>
 
 - Example:
 
@@ -1174,7 +1350,7 @@
           self.assertEqual(self.step, resp.context['step'])
   ```
 
-#### Template Tests
+#### Template Tests <span id="id-template-tests">[^](#template-tests)</span>
 
 - Example:
 
@@ -1191,9 +1367,13 @@
       self.assertContains(resp, self.course.title)
   ```
 
-## Customizing Django Templates
+---
 
-### CSS in Django
+## Customizing Django Templates <span id="id-customizing-django-templates">[^](#customizing-django-templates)</span>
+
+### Template Tags and Filters <span id="id-template-tags-and-filters">[^](#template-tags-and-filters)</span>
+
+#### CSS in Django <span id="id-css-in-django">[^](#css-in-django)</span>
 
 - To add app-specific (rather than site-wide) CSS and other static assets, you need to add a directory called `static/` within the app directory. You must then **namespace** your static files by creating another directory within your `static/` directory which has the same name as your app directory. For example, if your app is contained within the `./learning_site/courses/` directory, then the static files should be contained within: `./learning_site/courses/static/courses/css/courses.css`
 
@@ -1224,7 +1404,7 @@
   # ...
   ```
 
-### Handy Dandy Filters
+#### Handy Dandy Filters <span id="id-handy-dandy-filters">[^](#handy-dandy-filters)</span>
 
 - Example of how to use `pluralize` and `join` filters:
 
@@ -1236,7 +1416,7 @@
   </p>
   ```
 
-### Using Template Libraries
+#### Using Template Libraries <span id="id-using-template-libraries">[^](#using-template-libraries)</span>
 
 - Consider using the [**Humanize `contrib` package**](https://docs.djangoproject.com/en/3.0/ref/contrib/humanize/) for additional filters that are helpful for displaying data values in a more human-readable format. To use this package, add `django.contrib.humanize` to your `INSTALLED_APPS` in `settings.py`. Once installed, load the package into the template file, e.g.:
 
@@ -1255,9 +1435,9 @@
   {% endwith %}
   ```
 
-## Building Custom Tags
+### Building Custom Tags <span id="id-building-custom-tags">[^](#building-custom-tags)</span>
 
-### Built-in Tags and Filters
+#### Built-in Tags and Filters <span id="id-built-in-tags-and-filters">[^](#built-in-tags-and-filters)</span>
 
 - Examples of `wordcount`, `truncatewords`, `urlize`, and Django's custom [**date filter**](https://docs.djangoproject.com/en/3.0/ref/templates/builtins/#date):
 
@@ -1280,7 +1460,7 @@
   <div>Have questions? Contact us: {{ email|urlize }}</div>
   ```
 
-### DIY Custom Tags
+#### DIY Custom Tags <span id="id-diy-custom-tags">[^](#diy-custom-tags)</span>
 
 - [**Custom template tags**](https://docs.djangoproject.com/en/3.0/howto/custom-template-tags/#simple-tags) must be located in an app's `templatetags/` directory.
 
@@ -1313,7 +1493,7 @@
   # register.simple_tag(newest_course)
   ```
 
-### Complex Template Tags
+#### Complex Template Tags <span id="id-complex-template-tags">[^](#complex-template-tags)</span>
 
 - Use an `inclusion_tag` if your template tag needs to return data as another template, not just a string, e.g.:
 
@@ -1343,9 +1523,9 @@
   <div>{% nav_courses_list %}</div>
   ```
 
-## Building Custom Filters
+### Building Custom Filters <span id="id-building-custom-filters">[^](#building-custom-filters)</span>
 
-### Custom Time Estimate Filter
+#### Custom Time Estimate Filter <span id="id-custom-time-estimate-filter">[^](#custom-time-estimate-filter)</span>
 
 - Custom filters are located in the same directory as custom template tags: `templatetags/`
 
@@ -1370,7 +1550,7 @@
   {% endwith %}
   ```
 
-### Custom Tags
+#### Custom Tags <span id="id-custom-tags">[^](#custom-tags)</span>
 
 - You can use a Python library called [**markdown2**](https://github.com/trentm/python-markdown2) to transform Markdown text into HTML. Run `pip install markdown2` to install the library.
 
@@ -1401,11 +1581,13 @@
   {{ course.description|markdown_to_html }}
   ```
 
-## Django Forms
+---
 
-### Forms
+## Django Forms <span id="id-django-forms">[^](#django-forms)</span>
 
-#### Creating a Form
+### Forms <span id="id-forms">[^](#forms)</span>
+
+#### Creating a Form <span id="id-creating-a-form">[^](#creating-a-form)</span>
 
 - If you want to make a [**form**](https://docs.djangoproject.com/en/3.0/topics/forms/) for your general site (e.g., a contact form), first create a file named `forms.py` in your project's stub directory (e.g., `./learning_site/learning_site/forms.py`). Each form should exist as a class within `forms.py`, e.g.:
 
@@ -1422,7 +1604,7 @@
       suggestion = forms.CharField(widget=forms.Textarea)
   ```
 
-#### Showing a Form in a View
+#### Showing a Form in a View <span id="id-showing-a-form-in-a-view">[^](#showing-a-form-in-a-view)</span>
 
 - Example:
 
@@ -1471,7 +1653,7 @@
 
   - **IMPORTANT:** The `csrf_token` is used to protect against [**Cross Site Request Forgeries**](https://docs.djangoproject.com/en/3.0/ref/csrf/).
 
-#### Handling a Form in a View
+#### Handling a Form in a View <span id="id-handling-a-form-in-a-view">[^](#handling-a-form-in-a-view)</span>
 
 - Example of how to process a submitted form (simulates the form being received as an email, but merely stores the email within a `suggestions/` directory instead):
 
@@ -1546,7 +1728,7 @@
   {% endblock %}
   ```
 
-#### Custom Field Validation
+#### Custom Field Validation <span id="id-custom-field-validation">[^](#custom-field-validation)</span>
 
 - Example of a "honeypot" custom field validation:
 
@@ -1572,7 +1754,7 @@
         return honeypot
   ```
 
-#### Using and Creating Validators
+#### Using and Creating Validators <span id="id-using-and-creating-validators">[^](#using-and-creating-validators)</span>
 
 - Rather than using a custom field validation, you may also be able to rely upon Django's [**validators**](https://docs.djangoproject.com/en/3.0/ref/validators/), e.g.:
 
@@ -1617,7 +1799,7 @@
     )
   ```
 
-#### Cleaning a Whole Form
+#### Cleaning a Whole Form <span id="id-cleaning-a-whole-form">[^](#cleaning-a-whole-form)</span>
 
 - Example:
 
@@ -1643,9 +1825,9 @@
 
   - **NOTE:** Unlike cleaning a single field, the form `clean` method does not need to return a "clean" value if an error is not raised.
 
-### More on Models
+### More on Models <span id="id-more-on-models">[^](#more-on-models)</span>
 
-#### Abstract Inheritance
+#### Abstract Inheritance <span id="id-abstract-inheritance">[^](#abstract-inheritance)</span>
 
 - [**Abstract inheritance**](https://docs.djangoproject.com/en/3.0/topics/db/models/#abstract-base-classes) allows for models to inherit from other models which are not inserted in the database, e.g.:
 
@@ -1666,9 +1848,9 @@
 
   - **NOTE:** If you turn an already existing model into an abstract model, you will need to make and apply a new migration (and will likely need to remove registration references to the modified model in `admin.py` in the process, as you will essentially be renaming the model that currently exists in the database).
 
-#### Multiple Choice and True/False Questions
+#### Multiple Choice and True/False Questions <span id="id-multiple-choice-and-true-false-questions">[^](#multiple-choice-and-truefalse-questions)</span>
 
-- The second type of model inheritance used by Django is [**multi-table inheritance**](https://docs.djangoproject.com/en/3.0/topics/db/models/#multi-table-inheritance), which occurs when each model in the heirarcy corresponds to its own database table and can be queried and created individually. (You will probably want to avoid using MTI most of the time.)
+- The second type of model inheritance used by Django is [**multi-table inheritance**](https://docs.djangoproject.com/en/3.0/topics/db/models/#multi-table-inheritance), which occurs when each model in the heirarchy corresponds to its own database table and can be queried and created individually. (You will probably want to avoid using MTI most of the time.)
 
 - Example:
 
@@ -1707,9 +1889,9 @@
 
   - **NOTE:** With the above configuration, it would only be necessary to register the `MultipleChoiceQuestion` and `TrueFalseQuestion` models (not the `Question` model
 
-### Model Forms
+### Model Forms <span id="id-model-forms">[^](#model-forms)</span>
 
-#### What are Model Forms?
+#### What are Model Forms? <span id="id-what-are-model-forms">[^](#what-are-model-forms)</span>
 
 - When you create a model in an app, Django automatically creates a form for creating/editing instances of registered models via the admin view. However, if you want to create/edit models from outside of the admin view (e.g., to allow logged-in users to modify their own data), Django provides [**model forms**](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/).
 
@@ -1737,7 +1919,7 @@
 
 - Teacher's Notes: One of the areas of model forms that frustrates people is the requirement to use either `fields` or `exclude`. Many people find `excludes` to be faster because you do not have to update it every time you change your form or your model. But that is a dangerous decision to make because now any new fields will be automatically added to your displayed form. Instead, use `fields` to be explicit and control your fields directly.
 
-#### Using a Model Form
+#### Using a Model Form <span id="id-using-a-model-form">[^](#using-a-model-form)</span>
 
 - Create a new view for your model form:
 
@@ -1828,7 +2010,7 @@
   {% endif %}
   ```
 
-#### Edit an Instance
+#### Edit an Instance <span id="id-edit-an-instance">[^](#edit-an-instance)</span>
 
 - Create a view for editing a model form:
 
@@ -1892,9 +2074,9 @@
   {% endblock %}
   ```
 
-### Inlines and Media
+### Inlines and Media <span id="id-inlines-and-media">[^](#inlines-and-media)</span>
 
-#### Formsets
+#### Formsets <span id="id-formsets">[^](#formsets)</span>
 
 - [**Formsets**](https://docs.djangoproject.com/en/3.0/topics/forms/formsets/) allow you to create/edit multiple instances of a model at once. Example:
 
@@ -1949,7 +2131,7 @@
   </form>
   ```
 
-#### Inline Model Formset
+#### Inline Model Formset <span id="id-inline-model-formset">[^](#inline-model-formset)</span>
 
 - [**Inline formsets**](https://docs.djangoproject.com/en/3.0/topics/forms/modelforms/#inline-formsets) appear in the model form of another model.
 
@@ -1962,7 +2144,7 @@
 
   AnswerInlineFormset = forms.inlineformset_factory(
       models.Question,  # The model that will contain the inline form.
-      models.Answer,  # The model to be editted in the inline form.
+      models.Answer,  # The model to be edited in the inline form.
       extra=2,
       fields=('order', 'text', 'correct'),
       formset=AnswerFormset,  # Per lecturer: "Not required."
@@ -2106,7 +2288,7 @@
 
   - Consider using a [**form wizard**](https://django-formtools.readthedocs.io/en/latest/wizard.html#) for more advanced forms.
 
-#### Custom Form Media
+#### Custom Form Media <span id="id-custom-form-media">[^](#custom-form-media)</span>
 
 - You may sometimes need to use special static files (e.g., CSS, JS, or images) to make forms work as desired. Example of how to make an inline formset orderable via drag-and-drop:
 
@@ -2156,29 +2338,31 @@
 
   - **NOTE:** This example relies upon the jQuery library being imported as a dependency in the main `layout.html` file.
 
-## Django ORM
+---
 
-### Sale Old ORM
+## Django ORM <span id="id-django-orm">[^](#django-orm)</span>
 
-#### Let's Review
+### Same Old ORM <span id="id-same-old-orm">[^](#same-old-orm)</span>
+
+#### Let's Review <span id="id-let-s-review">[^](#lets-review)</span>
 
 - Working with a `Course` model:
 
   - Get all courses: `Course.objects.all()`
   - Get none of the courses: `Course.objects.none()`
-  - Get a single couse: `Course.objects.get(**kwargs)`
+  - Get a single course: `Course.objects.get(**kwargs)`
   - Make a new course: `Course.objects.create(**kwargs)`
   - Save changes to a course: `Course.objects.save(**kwargs)`
 
-#### Model Upgrades
+#### Model Upgrades <span id="id-model-upgrades">[^](#model-upgrades)</span>
 
-- You can use [fixtures](https://docs.djangoproject.com/en/3.0/howto/initial-data/) to provide initial data for models. You can create fixture data with `python manage.py dumpdata` and then optionally provide an app or model name. You can load that data with `python manage.py loaddata` and then provide the name of the fixture file, e.g.:
+- You can use [**fixtures**](https://docs.djangoproject.com/en/3.0/howto/initial-data/) to provide initial data for models. You can create fixture data with `python manage.py dumpdata` and then optionally provide an app or model name. You can load that data with `python manage.py loaddata` and then provide the name of the fixture file, e.g.:
 
   ```
   $ python manage.py loaddata fixtures.json
   ```
 
-#### Django Debug Toolbar
+#### Django Debug Toolbar <span id="id-django-debug-toolbar">[^](#django-debug-toolbar)</span>
 
 - Install the [**Django Debug Toolbar**](https://django-debug-toolbar.readthedocs.io/en/1.4/index.html) (DjDT) by running the following command:
 
@@ -2210,9 +2394,9 @@
           ]
       ```
 
-### Basic ORM Usage
+### Basic ORM Usage <span id="id-basic-orm-usage">[^](#basic-orm-usage)</span>
 
-#### Restricting Results
+#### Restricting Results <span id="id-restricting-results">[^](#restricting-results)</span>
 
 - You can refine a queryset by adding [**filter() conditions**](https://docs.djangoproject.com/en/3.0/topics/db/queries/#retrieving-specific-objects-with-filters).
 
@@ -2269,7 +2453,7 @@
   </form>
   ```
 
-#### Exclusivity
+#### Exclusivity <span id="id-exclusivity">[^](#exclusivity)</span>
 
 - You can use the `exclude()` method as an inverse corollary of the `filter()` method. Example:
 
@@ -2283,7 +2467,7 @@
   <QuerySet [<Course: Collections>, <Course: OOP>, <Course: Testing>, <Course: Build a Simple Android App>, <Course: Android Activity Lifecycle>, <Course: SQL Basics>, <Course: Modifying Data with SQL>, <Course: jQuery Basics>, <Course: Build a Simple Dynamic Site with Node.js>, <Course: Build a Basic PHP Website>]>
   ```
 
-#### Updates and Deletes
+#### Updates and Deletes <span id="id-updates-and-deletes">[^](#updates-and-deletes)</span>
 
 - Example of how to update a field in all records at once in the Python shell:
 
@@ -2315,7 +2499,7 @@
   <QuerySet []>
   ```
 
-#### The Miracle of Creation
+#### The Miracle of Creation <span id="id-the-miracle-of-creation">[^](#the-miracle-of-creation)</span>
 
 - Examples of how to create model instances outside of a model form using `create()` and `bulk_create()`:
 
@@ -2354,7 +2538,7 @@
   (<Course: Django REST Framework>, True)
   ```
 
-#### Take Control
+#### Take Control <span id="id-take-control">[^](#take-control)</span>
 
 - Example of how to use the `values()` method:
 
@@ -2388,9 +2572,9 @@
   <QuerySet [datetime.datetime(2016, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>), datetime.datetime(2019, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>), datetime.datetime(2020, 1, 1, 0, 0, tzinfo=<DstTzInfo 'Pacific/Honolulu' HST-1 day, 14:00:00 STD>)]>
   ```
 
-### Total Control
+### Total Control <span id="id-total-control">[^](#total-control)</span>
 
-#### Brought to You by the Letter F
+#### Brought to You by the Letter F <span id="id-brought-to-you-by-the-letter-f">[^](#brought-to-you-by-the-letter-f)</span>
 
 - [**F() objects**](https://docs.djangoproject.com/en/3.0/ref/models/expressions/#f-expressions) are useful when you need to access database values in real-time. These objects let you refer to a value of a field as it currently is in the database, instead of how it is in an instance that may be outdated (helps to avoid race conditions), e.g.:
 
@@ -2426,7 +2610,7 @@
   2
   ```
 
-#### Mind your Ps and Qs
+#### Mind your Ps and Qs <span id="id-mind-your-ps-and-qs">[^](#mind-your-ps-and-qs)</span>
 
 - You can perform complex lookups with [**Q objects**](https://docs.djangoproject.com/en/3.0/topics/db/queries/#complex-lookups-with-q-objects), e.g.:
 
@@ -2455,7 +2639,7 @@
 
 - **NOTE:** It may often be better to use a dedicated search engine like Elasticsearch rather than building a solution with Q objects.
 
-#### Aggregate and Annotate
+#### Aggregate and Annotate <span id="id-aggregate-and-annotate">[^](#aggregate-and-annotate)</span>
 
 - [**Annotations**](https://docs.djangoproject.com/en/3.0/topics/db/aggregation/) let you run SQL operations on each item in a queryset and then append the result as a new attribute. While **annotations** are run on each individual item in a queryset, **aggregates** are run on the entire queryset (and they return a dictionary rather than a queryset)
 
@@ -2487,7 +2671,7 @@
 
 - **NOTE:** Aggregates can add a significant amount to your query time, so you should always monitor them with DjDT.
 
-#### Related Records
+#### Related Records <span id="id-related-records">[^](#related-records)</span>
 
 - You can use certain ORM functions to help reduce the number of superfluous queries made against the database, e.g.:
 
@@ -2551,11 +2735,13 @@
 
   2. `select_related` is for getting smaller amounts of items, usually just one. Usually this will relate to a foreign key field on the model you're originally selecting, like going from question to quiz.
 
-## Customizing the Django Admin
+---
 
-### Using the Django Admin
+## Customizing the Django Admin <span id="id-customizing-the-django-admin">[^](#customizing-the-django-admin)</span>
 
-#### Your First Admin Customization
+### Using the Django Admin <span id="id-using-the-django-admin">[^](#using-the-django-admin)</span>
+
+#### Your First Admin Customization <span id="id-your-first-admin-customization">[^](#your-first-admin-customization)</span>
 
 - To begin customizing the admin view, (1) create a directory named `admin/` under the `templates/` directory at the project level, and (2) create a file named `base_site.html` and insert the following code that can be modified as needed (obtained from the Django source code, available [here](https://github.com/django/django/blob/master/django/contrib/admin/templates/admin/base_site.html)):
 
@@ -2573,7 +2759,7 @@
 
   - **NOTE:** Refer to [this page](https://github.com/django/django/tree/master/django/contrib/admin/templates/admin) of the source code to see all admin templates.
 
-#### Changing Field Order
+#### Changing Field Order <span id="id-changing-field-order">[^](#changing-field-order)</span>
 
 - By default, Django's admin displays all fields for each model in the order they appear in the class. You can specify which fields appear in the admin view and their order as follows:
 
@@ -2592,9 +2778,9 @@
   admin.site.register(models.Quiz, QuizAdmin)
   ```
 
-### Customizing the List View
+### Customizing the List View <span id="id-customizing-the-list-view">[^](#customizing-the-list-view)</span>
 
-#### Adding Search and Filters
+#### Adding Search and Filters <span id="id-adding-search-and-filters">[^](#adding-search-and-filters)</span>
 
 - You can add a **search field** and **filter** to any admin list view (e.g., Home > Courses > Courses):
 
@@ -2609,7 +2795,7 @@
       list_filter = ['created_at', 'published']
   ```
 
-#### Building Custom Filters
+#### Building Custom Filters <span id="id-building-custom-filters">[^](#building-custom-filters)</span>
 
 - You can create your own classes that act as custom filters, e.g.:
 
@@ -2646,7 +2832,7 @@
       list_filter = ['created_at', 'published', YearListFilter]
   ```
 
-#### Customizing What You See
+#### Customizing What You See <span id="id-customizing-what-you-see">[^](#customizing-what-you-see)</span>
 
 - You can customize a list view to show more than just the main piece of information (i.e., whatever is returned by the `__str__` method of your model) about an object:
 
@@ -2661,7 +2847,7 @@
       list_display = ['title', 'created_at', 'published']
   ```
 
-#### Customizing Attributes
+#### Customizing Attributes <span id="id-customizing-attributes">[^](#customizing-attributes)</span>
 
 - You can use methods as custom attributes on your models, which can then be displayed in the list view of the admin site, e.g.:
 
@@ -2702,7 +2888,7 @@
       list_display = ['title', 'created_at', 'published', 'time_to_complete']
   ```
 
-#### Editing the List View
+#### Editing the List View <span id="id-editing-the-list-view">[^](#editing-the-list-view)</span>
 
 - You can use `list_editable` to edit items in your database directly from the list view without entering a detail view, e.g.:
 
@@ -2716,9 +2902,9 @@
       list_editable = ['quiz', 'order']
   ```
 
-### Customizing the Detail View
+### Customizing the Detail View <span id="id-customizing-the-detail-view">[^](#customizing-the-detail-view)</span>
 
-#### Customize the Look of the Detail View
+#### Customize the Look of the Detail View <span id="id-customize-the-look-of-the-detail-view">[^](#customize-the-look-of-the-detail-view)</span>
 
 - You can use [**fieldsets**](https://docs.djangoproject.com/en/3.0/ref/contrib/admin/#django.contrib.admin.ModelAdmin.fieldsets) to customize how the detail view looks, including grouping related fields together, adding horizontal select options, and showing choices in tabular format; e.g.:
 
@@ -2744,7 +2930,7 @@
       )
   ```
 
-#### Horizontal Select and TabularInline
+#### Horizontal Select and TabularInline <span id="id-horizontal-select-and-tabular-inline">[^](#horizontal-select-and-tabularinline)</span>
 
 - You can replace a dropdown menu with a selection of radio buttons, and change fields from stacking on top of each other to being in a tabular format; e.g.:
 
@@ -2765,7 +2951,7 @@
       radio_fields = {'quiz': admin.HORIZONTAL}
   ```
 
-#### Making a Text Preview
+#### Making a Text Preview <span id="id-making-a-text-preview">[^](#making-a-text-preview)</span>
 
 - You can add a WYSIWYG editor preview by modifying the default `change_form` and `fieldset` HTML templates. Make duplicates of each file within your project's `templates/admin/{APP}/{MODEL}/` directory. See the following files for details:
 
@@ -2775,7 +2961,7 @@
 
 - **NOTE:** Rather than copying the original template from the GitHub repo, you can always use DjDT's "Templates" tab to determine (1) which admin templates are being used, and (2) the filepath to the template in the source code on your local machine. It is best to copy from these local templates, as the version of the template from the `master` branch of the [Django source code](https://github.com/django/django/blob/master/django/contrib/admin/templates/admin/) may not be compatible with that installed on your local machine.
 
-#### Finishing the Markdown Preview
+#### Finishing the Markdown Preview <span id="id-finishing-the-markdown-preview">[^](#finishing-the-markdown-preview)</span>
 
 - Refer to the following files to see how a Markdown preview box was created:
 
@@ -2802,7 +2988,7 @@
 
   - **NOTE:** The implementation is rather crude (as the Markdown preview only updates when the form is saved, rather than in real time). It should not likely ever be implemented as is, and it is only included here for reference.
 
-#### Adding Custom Admin Actions
+#### Adding Custom Admin Actions <span id="id-adding-custom-admin-actions">[^](#adding-custom-admin-actions)</span>
 
 - You can add custom admin actions to perform bulk operations (e.g., setting multiple courses to "Published" from the list view):
 
@@ -2852,17 +3038,19 @@
       actions = [make_published]
   ```
 
-## Django Class-based Views
+---
 
-### Classy Views
+## Django Class-based Views <span id="id-django-class-based-views">[^](#django-class-based-views)</span>
 
-#### What are Class-based Views?
+### Classy Views <span id="id-classy-views">[^](#classy-views)</span>
+
+#### What are Class-based Views? <span id="id-what-are-class-based-views">[^](#what-are-class-based-views)</span>
 
 - Django's [**class-based views**](https://docs.djangoproject.com/en/3.0/topics/class-based-views/) allow you to structure your views and reuse code by harnessing inheritance and mixins. The generic views provided by Django can provide most of the functionality needed by a view.
 
 - See also: [**Classy Class-Based Views**](https://ccbv.co.uk/) for detailed descriptions about each of Django's class-based generic views.
 
-#### The View Class
+#### The View Class <span id="id-the-view-class">[^](#the-view-class)</span>
 
 - The most basic class for creating views is [**View**](http://ccbv.co.uk/projects/Django/3.0/django.views.generic.base/View/). Example:
 
@@ -2898,7 +3086,7 @@
 
 - **NOTE:** The `View` class is generally only useful when you need to control _everything_ about how a view is managed. However, for most cases, you will most likely use Django's generic views that are aimed at solving specific problems.
 
-#### Template View
+#### Template View <span id="id-template-view">[^](#template-view)</span>
 
 - The [**TemplateView**](https://docs.djangoproject.com/en/3.0/ref/class-based-views/base/#templateview) renders a given template, with the context containing parameters captured in the URL. Example:
 
@@ -2926,7 +3114,7 @@
 	</p>
   ```
 
-#### ListView and DetailView
+#### ListView and DetailView <span id="id-list-view-and-detail-view">[^](#listview-and-detailview)</span>
 
 - Examples:
 
@@ -2963,7 +3151,7 @@
   ]
   ```
 
-#### CRUD View
+#### CRUD View <span id="id-crud-view">[^](#crud-view)</span>
 
 - Basic example of `CreateView`, `UpdateView`, and `DeleteView`:
 
@@ -3070,9 +3258,9 @@
   {% endblock %}
   ```
 
-### Customizing Class-based Views
+### Customizing Class-based Views <span id="id-customizing-class-based-views">[^](#customizing-class-based-views)</span>
 
-#### Overriding Methods
+#### Overriding Methods <span id="id-overriding-methods">[^](#overriding-methods)</span>
 
 - Example of overriding `get_initial` and `get_queryset` methods:
 
@@ -3105,7 +3293,7 @@
           return self.model.objects.all()
   ```
 
-#### Franken-Views
+#### Franken-Views <span id="id-franken-views">[^](#franken-views)</span>
 
 - It is possible to combine multiple views (although it is likely better to use mixins, which are described below). Example of combining a Create form on a list view page:
 
@@ -3146,15 +3334,15 @@
   {% endblock %}
   ```
 
-#### Mixins
+#### Mixins <span id="id-mixins">[^](#mixins)</span>
 
 - [**Mixins**](https://docs.djangoproject.com/en/3.0/topics/class-based-views/mixins/) are small classes that add or augment a single feature on a larger class (in order to customize and modify a view).
 
 - Four major built-in mixins:
-  - [AccessMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/AccessMixin/)
-  - [LoginRequiredMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/LoginRequiredMixin/)
-  - [PermissionRequiredMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/PermissionRequiredMixin/)
-  - [UserPassesTestMixin](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/UserPassesTestMixin/)
+  - [**AccessMixin**](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/AccessMixin/)
+  - [**LoginRequiredMixin**](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/LoginRequiredMixin/)
+  - [**PermissionRequiredMixin**](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/PermissionRequiredMixin/)
+  - [**UserPassesTestMixin**](https://ccbv.co.uk/projects/Django/3.0/django.contrib.auth.mixins/UserPassesTestMixin/)
 
 - See additional mixins on [**Django Braces**](https://django-braces.readthedocs.io/en/latest/).
 
@@ -3200,7 +3388,7 @@
       fields = ('name', 'practice_location', 'coach')
 
       def get_page_title(self):
-          # `get_object()` gets the object currently being editted.
+          # `get_object()` gets the object currently being edited.
           obj = self.get_object()
           return 'Update {}'.format(obj.name)
   ```
@@ -3211,11 +3399,13 @@
   <h1>{{ page_title }}</h1>
   ```
 
-## Django REST Framework
+---
 
-### Installation
+## Django REST Framework <span id="id-django-rest-framework">[^](#django-rest-framework)</span>
 
-- Install the [Django REST framework](https://www.django-rest-framework.org/) using `pip`:
+### Installation <span id="id-installation">[^](#installation)</span>
+
+- Install the [**Django REST framework**](https://www.django-rest-framework.org/) using `pip`:
 
   ```
   $ pip install djangorestframework
@@ -3281,7 +3471,7 @@
               'rating',
               'created_at',
           )
-          # Sepcify that the `email` field can be supplied by the user,
+          # Specify that the `email` field can be supplied by the user,
           # but it will not be sent back out upon serialization.
           extra_kwargs = {
               'email': {'write_only': True}
@@ -3353,7 +3543,7 @@
       # `format` controls the format of the output.
       def get(self, request, format=None):
           courses = models.Course.objects.all()
-          # Use `many=True` when serializing multipe objects.
+          # Use `many=True` when serializing multiple objects.
           serializer = serializers.CourseSerializer(courses, many=True)
           return Response(serializer.data)
   ```
@@ -3428,9 +3618,9 @@
   ]
   ```
 
-### Make the REST Framework Work for You
+### Make the REST Framework Work for You <span id="id-make-the-rest-framework-work-for-you">[^](#make-the-rest-framework-work-for-you)</span>
 
-#### Generic CRUD
+#### Generic CRUD <span id="id-generic-crud">[^](#generic-crud)</span>
 
 - DRF includes [**generic views**](https://www.django-rest-framework.org/api-guide/generic-views/) that allow you to quickly build API views that map closely to your database models. Example:
 
@@ -3473,7 +3663,7 @@
 
   - **NOTE:** This method of making a List/Create view replaces that shown in "POSTing to an APIView" above. It provides for a more succinct way to create such views. The form for submitting a POST request to the database is also configured to use HTML inputs in addition to raw JSON.
 
-#### Overriding Generic View Methods
+#### Overriding Generic View Methods <span id="id-overriding-generic-view-methods">[^](#overriding-generic-view-methods)</span>
 
 - Example of how to override generic view methods for filtering:
 
@@ -3529,7 +3719,7 @@
   ]
   ```
 
-#### Viewsets and Routers
+#### Viewsets and Routers <span id="id-viewsets-and-routers">[^](#viewsets-and-routers)</span>
 
 - [**Routers**](https://www.django-rest-framework.org/api-guide/routers/) are DRF's way of automating URL creation for API views. Routers are designed to work seamlessly with [**viewsets**](https://www.django-rest-framework.org/api-guide/viewsets/), which allow you to combine all of the logic for a set of related views into a single class. Instead of creating a `ListCreateAPIView` and `RetrieveUpdateDestroyAPIView` for every resources, you can do this all in one class.
 
@@ -3590,7 +3780,7 @@
   ]
   ```
 
-#### Customizing Viewsets
+#### Customizing Viewsets <span id="id-customizing-viewsets">[^](#customizing-viewsets)</span>
 
 - You can customize viewsets to control exactly which HTTP methods your viewsets will respond to. Example:
 
@@ -3603,16 +3793,16 @@
 
   """
   `ModelViewSet` essentially inherits from each of the following:
-      - `mixins.CreateModelMixin`
-      - `mixins.RetrieveModelMixin`
-      - `mixins.UpdateModelMixin`
-      - `mixins.DestroyModelMixin`
-      - `mixins.ListModelMixin`
-      - `viewsets.GenericViewSet`
+      - #### `mixins.CreateModelMixin`
+      - #### `mixins.RetrieveModelMixin`
+      - #### `mixins.UpdateModelMixin`
+      - #### `mixins.DestroyModelMixin`
+      - #### `mixins.ListModelMixin`
+      - #### `viewsets.GenericViewSet`
 
   So if you want to customize a viewset that will not display a list view,
   then simply create a new model that inherits from `GenericViewSet` and
-  all of the mixins execpt for `ListModelMixin`. The end result is that users
+  all of the mixins except for `ListModelMixin`. The end result is that users
   can retrieve individual reviews (e.g., `/api/v2/courses/1/reviews/2/`), but
   they cannot retrieve a list of all reviews (e.g., `/api/v2/reviews/).
   Attempting to go to the latter will yield: "Method 'GET' not allowed."
@@ -3629,7 +3819,7 @@
 
 - **NOTE:** It is also possible to create [**function-based views**](https://www.django-rest-framework.org/api-guide/views/#function-based-views) rather than class-based views, if desired.
 
-#### Relations
+#### Relations <span id="id-relations">[^](#relations)</span>
 
 - Use [**relations**](https://www.django-rest-framework.org/api-guide/relations/) to display foreign key relationships. Example:
 
@@ -3674,7 +3864,7 @@
           )
   ```
 
-#### Pagination
+#### Pagination <span id="id-pagination">[^](#pagination)</span>
 
 - Use [**pagination**](https://www.django-rest-framework.org/api-guide/pagination/) to prevent situations in which thousands of related objects are included in a single API request.
 
@@ -3718,9 +3908,9 @@
           return Response(serializer.data)
   ```
 
-### Security and Customization
+### Security and Customization <span id="id-security-and-customization">[^](#security-and-customization)</span>
 
-#### Token Authentication
+#### Token Authentication <span id="id-token-authentication">[^](#token-authentication)</span>
 
 - Token-based [**authentication**](https://www.django-rest-framework.org/api-guide/authentication/) takes advantage of a simple HTTP authentication method. Instead of making a user log in and keep a [**session**](https://docs.djangoproject.com/en/3.0/topics/http/sessions/#module-django.contrib.sessions) around (which will not be an option available on non-browser mobile applications), a user is assigned a token which is usually a randomly-generated string that the user provides to the server to prove their identity. Tokens
 
@@ -3754,14 +3944,14 @@
 
 - The token generated above can now be used to submit POST requests that require authentication. The request's `Headers` must include a key of `Authorization` which has a value of `Token b1cfa1c350e39202b68b87db80c2290d50ad932e` (note the space between "Token" and the key).
 
-#### Permissions
+#### Permissions <span id="id-permissions">[^](#permissions)</span>
 
 - [**Permissions**](https://www.django-rest-framework.org/api-guide/permissions/) decide whether a request should be granted or denied access. In addition to setting the `DEFAULT_PERMISSION_CLASSES` globally via `settings.py`, you can use permissions to protect a single, specific view. Example:
 
   ```python
   # ./django-basics/django_rest_framework/ed_reviews/courses/views.py
 
-  # Only allow superusers to delete objects. All other users can peform
+  # Only allow superusers to delete objects. All other users can perform
   # any other request.
   class SuperUserCanDelete(permissions.BasePermission):
       def has_permission(self, request, view):
@@ -3783,7 +3973,7 @@
 
 - Also see [**Django Guardian**](https://django-guardian.readthedocs.io/en/stable/overview.html), which is an implementation of object permissions for Django and provides an extra authentication backend.
 
-#### Enhancing Your Calm with Throttling
+#### Enhancing Your Calm with Throttling <span id="id-enhancing-your-calm-with-throttling">[^](#enhancing-your-calm-with-throttling)</span>
 
 - [**Throttling**](https://www.django-rest-framework.org/api-guide/throttling/) controls the rate of requests that a client can make to an API.
 
@@ -3807,7 +3997,7 @@
 
 - DRF tracks the requests made in a given time limit via Django's cache backend settings. Django defaults to the local memory cache backend (which is primarily meant for local development and is not very efficient). Django provides other cache backend choices, and there are other third-party packages that can extend your options. In production, you may likely use the [**Memcached**](https://docs.djangoproject.com/en/3.0/topics/cache/#memcached) backend.
 
-#### Customizing Validation
+#### Customizing Validation <span id="id-customizing-validation">[^](#customizing-validation)</span>
 
 - Example of a custom serializer validation:
 
@@ -3842,7 +4032,7 @@
 
 - It is also possible to perform object-level validation across multiple fields, and for validators to be included on individual fields on a serializer. See the examples in the [official documentation](https://www.django-rest-framework.org/api-guide/serializers/#validation).
 
-#### Customizing Serialization
+#### Customizing Serialization <span id="id-customizing-serialization">[^](#customizing-serialization)</span>
 
 - You can add custom data to your serializer output by using the [**SerializerMethodField**](https://www.django-rest-framework.org/api-guide/fields/#serializermethodfield). Example:
 
@@ -3887,11 +4077,13 @@
           return round(average * 2) / 2
   ```
 
-## Django Authentication
+---
 
-### Authentication
+## Django Authentication <span id="id-django-authentication">[^](#django-authentication)</span>
 
-#### Requiring Logins
+### Authentication <span id="id-authentication">[^](#authentication)</span>
+
+#### Requiring Logins <span id="id-requiring-logins">[^](#requiring-logins)</span>
 
 - Django provides the [**LoginRequiredMixin**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.mixins.LoginRequiredMixin) for generic views that requires a user to be logged in to gain access to the view. According to the teacher: "Django provides decorators for marking a view as requiring a login, but decorators are 'iffy' with class-based views. So Django also provides mixins to use with your class-based views."
 
@@ -3916,7 +4108,7 @@
       # ...
   ```
 
-#### LoginView
+#### LoginView <span id="id-login-view">[^](#loginview)</span>
 
 - One method of using [**LoginView**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.views.LoginView) to authenticate and log in users via a form located on `/accounts/login/`:
 
@@ -3930,7 +4122,7 @@
 
 
   class LoginView(generic.FormView):
-      # Ensure the user is authenticated before attemping a log in.
+      # Ensure the user is authenticated before attempting a log in.
       form_class = AuthenticationForm
       # Redirect when the form view is complete.
       success_url = reverse_lazy('posts:all')
@@ -4048,7 +4240,7 @@
   {% endblock %}
   ```
 
-#### LogoutView and SignUpView
+#### LogoutView and SignUpView <span id="id-logout-view-and-sign-up-view">[^](#logoutview-and-signupview)</span>
 
 - Django's authentication views include a [**LogoutView**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#django.contrib.auth.views.LogoutView), which renders as an admin "Logged out" template by default when a request is made to `accounts/logout/`. You can change this behavior to redirect to another view instead (e.g., the home page). Example:
 
@@ -4150,7 +4342,7 @@
 
 - To automatically log a user in after completing the sign up process, consider the steps taken in [this thread](https://teamtreehouse.com/community/django-authentication-signupview-challenge-task-2-of-2-not-sure-if-i-am-on-the-right-path).
 
-#### Resetting Passwords
+#### Resetting Passwords <span id="id-resetting-passwords">[^](#resetting-passwords)</span>
 
 - Django's default password reset process sends a link to the email address of a registered user. Once the user clicks that link, they will be presented with a form to enter a new password. While in development, you may use the [**file backend**](https://docs.djangoproject.com/en/3.0/topics/email/#email-backends) to write emails to a file rather than actually sending a real email:
 
@@ -4169,13 +4361,13 @@
   - Password reset form: `password_reset_confirm.html`
   - "Password reset complete" template: `password_reset_complete.html`
 
-### Users and Authorization
+### Users and Authorization <span id="id-users-and-authorization">[^](#users-and-authorization)</span>
 
-#### User Diversity
+#### User Diversity <span id="id-user-diversity">[^](#user-diversity)</span>
 
 - Read the [**documentation**](https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#extending-the-existing-user-model) regarding creating **custom user models**.
 
-#### Custom User Manager
+#### Custom User Manager <span id="id-custom-user-manager">[^](#custom-user-manager)</span>
 
 - Example of a custom user manager:
 
@@ -4227,7 +4419,7 @@
 
   - **SEE ALSO:** A [**full example**](https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#a-full-example) of an admin-compliant custom user app, and the documentation regarding [**managers**](https://docs.djangoproject.com/en/3.0/topics/db/managers/).
 
-#### Custom User Model
+#### Custom User Model <span id="id-custom-user-model">[^](#custom-user-model)</span>
 
 - Example:
 
@@ -4307,7 +4499,7 @@
 
   - **WARNING:** Changing to a custom user model mid-project can lead to significant difficulties. Refer to the [documentation](https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#changing-to-a-custom-user-model-mid-project) and [this thread on Stack Overflow](https://stackoverflow.com/questions/44651760/django-db-migrations-exceptions-inconsistentmigrationhistory/49911140#49911140) for more details.
 
-#### Permissions
+#### Permissions <span id="id-permissions">[^](#permissions)</span>
 
 - Example:
 
@@ -4421,7 +4613,7 @@
       def has_permission(self):
           # Returns `True` if any of the following are true:
           return any([
-              # User has the permission specifically assinged to them...
+              # User has the permission specifically assigned to them...
               super().has_permission(),
               # ...or the user is an admin.
               self.request.user.id in self.get_object().admins
@@ -4526,21 +4718,23 @@
 
 - Teacher's Notes:
 
-  Permissions get into one of the hairier parts of Django, the `contentypes` framework. Have a look through the [**contenttypes docs**](https://docs.djangoproject.com/en/3.0/ref/contrib/contenttypes/) if you want to know more. In short, though, it's a model that holds a reference to every non-abstract model in your project.
+  Permissions get into one of the hairier parts of Django, the `contenttypes` framework. Have a look through the [**contenttypes docs**](https://docs.djangoproject.com/en/3.0/ref/contrib/contenttypes/) if you want to know more. In short, though, it's a model that holds a reference to every non-abstract model in your project.
 
   The [**PermissionRequiredMixin**](https://docs.djangoproject.com/en/3.0/topics/auth/default/#the-permissionrequiredmixin-mixin) is from Django itself, and it only checks for a certain permission. If you need to check for multiple permissions, django-braces offers a [**MultiplePermissionsRequiredMixin**](https://django-braces.readthedocs.io/en/latest/access.html#multiplepermissionsrequiredmixin).
 
   Checking `{{ perms }}` in templates is a great way to show and hide bits and pieces based on what a user is allowed to do. You shouldn't show them buttons they can't actually click! You can also check `has_perm` or `has_perms` on a user model, too, to see if they have the appropriate permission for a bit of logic. For row-level or object-level permissions, [**django-guardian**](https://django-guardian.readthedocs.io/en/stable/) is a great project to check out.
 
-## Django Social Authentication
+---
 
-### Introduction and GitHub Token
+## Django Social Authentication <span id="id-django-social-authentication">[^](#django-social-authentication)</span>
+
+### Introduction and GitHub Token <span id="id-introduction-and-git-hub-token">[^](#introduction-and-github-token)</span>
 
 - [**django-allauth**](https://django-allauth.readthedocs.io/en/stable/) provides an integrated set of Django applications addressing authentication, registration, account management, and third-party (social) account authentication.
 
 - You can create a **GitHub application** [here](https://github.com/settings/applications/new).
 
-### Setting up django-allauth
+### Setting up django-allauth <span id="id-setting-up-django-allauth">[^](#setting-up-django-allauth)</span>
 
 1. Install via `pip install django-allauth`.
 
@@ -4555,11 +4749,11 @@
     ```
 
 3. Add the following libraries to `INSTALLED_APPS` in `settings.py` to include the required models, templates, views, etc.:
-    - `'django.contrib.sites'`
-    - `'allauth'`
-    - `'allauth.account'`
-    - `'allauth.socialaccount'`
-    - `'allauth.socialaccount.providers.github'`
+    - #### `'django.contrib.sites'`
+    - #### `'allauth'`
+    - #### `'allauth.account'`
+    - #### `'allauth.socialaccount'`
+    - #### `'allauth.socialaccount.providers.github'`
 
 4. Add a `SITE_ID` value (e.g., `SITE_ID = 1`) to `settings.py`.
 
@@ -4573,9 +4767,9 @@
 
 8. Go to the `Social Accounts > Social applications` category in the admin console, select `Add`, choose your `Provider`, provide a `Name`, insert the `Client ID` and `Client Secret` from your GitHub application, and ensure your site is moved from `Available sites` to `Chosen sites`.
 
-  - **NOTE:** You may need to revoke all user tokens and reset your client sercret on GitHub if this is a live application.
+  - **NOTE:** You may need to revoke all user tokens and reset your client secret on GitHub if this is a live application.
 
-### Requiring Emails and Customization
+### Requiring Emails and Customization <span id="id-requiring-emails-and-customization">[^](#requiring-emails-and-customization)</span>
 
 - Add `ACCOUNT_EMAIL_REQUIRED = True` to `settings.py` to require that users provide an email address when they sign up.
 
